@@ -18,6 +18,7 @@
             overflow: hidden;
         }
 
+        
         /* Full-screen container */
         .fullscreen-container {
             position: fixed;
@@ -207,13 +208,13 @@
         <!-- Background slideshow -->
         <div class="slideshow">
             <div class="slide active">
-                <img src="assets/images/algonquin_main_image.jpeg" alt="Algonquin College Campus">
+                <!-- <img src="assets/images/algonquin_main_image.jpeg" alt="Algonquin College Campus"> -->
             </div>
             <div class="slide active">
-                <img src="assets/images/Algonquin-6191-scaled.jpg" alt="Algonquin College">
+                <!-- <img src="assets/images/Algonquin-6191-scaled.jpg" alt="Algonquin College"> -->
             </div>
             <div class="slide">
-                <img src="assets/images/algonquin_secondary_image.jpg" alt="Algonquin College Students">
+                <!-- <img src="assets/images/algonquin_secondary_image.jpg" alt="Algonquin College Students"> -->
             </div>
             
         </div>
@@ -223,9 +224,9 @@
         
         <!-- Content -->
         <div class="content">
-            <img src="assets/images/algonquin_logo_footer.png" alt="Algonquin College Logo" class="logo">
+            <!-- <img src="assets/images/algonquin_logo_footer.png" alt="Algonquin College Logo" class="logo"> -->
             
-            <h1 class="welcome-title">Welcome to Algonquin Social</h1>
+            <h1 class="welcome-title">School Connect</h1>
             <p class="welcome-subtitle">Connect with students, share experiences, and build your campus network</p>
             
             <div class="action-buttons">

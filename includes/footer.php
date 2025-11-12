@@ -11,7 +11,7 @@
                 <li><a href="contact.php">Contact Us</a></li>
             </ul>
             <div class="copyright">
-                &copy; <?= date('Y') ?> Algonquin College. All Rights Reserved.
+                <!-- &copy; <?= date('Y') ?> Algonquin College. All Rights Reserved. -->
             </div>
         </div>
     </footer>
