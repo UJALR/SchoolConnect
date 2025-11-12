@@ -43,7 +43,7 @@ VALUES
 (3, 1),
 (3, 3);
 
-INSERT INTO UserUserGroups (group_name, description, creator_id, is_private)
+INSERT INTO UserGroups (group_name, description, creator_id, is_private)
 VALUES
 ('Dev Circle', 'Group for web development discussions.', 1, 0),
 ('Design Hub', 'UI/UX design inspiration and critique.', 3, 1);

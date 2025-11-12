@@ -65,10 +65,10 @@ CREATE TABLE UserLanguages (
 );
 
 -- UserUserGroups table
-CREATE TABLE UserUserGroups (
+CREATE TABLE UserGroups (
     group_id INT AUTO_INCREMENT PRIMARY KEY,
     group_name VARCHAR(100) NOT NULL UNIQUE,
-    description TEXT,
+    description VARCHAR(200),
     creator_id INT NOT NULL,
     is_private BOOLEAN NOT NULL DEFAULT 0,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -95,7 +95,7 @@ CREATE TABLE Posts (
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     group_id INT,
     FOREIGN KEY (user_id) REFERENCES Users(user_id),
-    FOREIGN KEY (group_id) REFERENCES UserUserGroups(group_id)
+    FOREIGN KEY (group_id) REFERENCES UserGroups(group_id)
 );
 
 -- UserComments table
@@ -105,7 +105,7 @@ CREATE TABLE UserComments (
     user_id INT NOT NULL,
     comment_text TEXT NOT NULL,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (post_id) REFERENCES UserPosts(post_id),
+    FOREIGN KEY (post_id) REFERENCES Posts(post_id),
     FOREIGN KEY (user_id) REFERENCES Users(user_id)
 );
 
