@@ -1,55 +1,78 @@
-<?php 
-require_once __DIR__ . '/includes/config.php';
-require_once __DIR__ . '/includes/auth.php';
+<?php
+require_once 'includes/database.php';
+require_once 'includes/auth.php';
+
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
 
 if (isLoggedIn()) {
-    header("Location: MyAlbums.php");
+    header("Location: Posts.php");
     exit();
 }
 
 $error = '';
+$db = Database::getInstance();
+$pdo = $db->getConnection();
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $userId = sanitizeInput($_POST['user_id'], $conn);
-    $password = sanitizeInput($_POST['password'], $conn);
+    $collegeEmail = trim($_POST['college_email'] ?? '');
+    $password = $_POST['password'] ?? '';
     
-    $stmt = $conn->prepare("SELECT UserId, Name, Password FROM User WHERE UserId = ?");
-    $stmt->bind_param("s", $userId);
-    $stmt->execute();
-    $result = $stmt->get_result();
+    // echo "<script>alert('hi');</script>";
+    // exit();
+
+    if (empty($collegeEmail) || empty($password)) {
+        $error = "Please enter your college email and password.";
+    }
     
-    if ($result->num_rows === 1) {
-        $user = $result->fetch_assoc();
-        
-        if (verifyPassword($password, $user['Password'])) {
-            $_SESSION['user_id'] = $user['UserId'];
-            $_SESSION['user_name'] = $user['Name'];
-            
-            $redirect_url = $_SESSION['redirect_url'] ?? 'MyAlbums.php';
-            unset($_SESSION['redirect_url']);
-            header("Location: $redirect_url");
-            exit();
-        } else {
-            $error = "Invalid password.";
+    if (empty($error)) {
+        try {
+            $sql = "SELECT user_id, username, full_name, password_hash FROM Users 
+                    WHERE college_email = :email";
+
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([':email' => $collegeEmail]); 
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($user) {
+                if (verifyPassword($password, $user['password_hash'])) {
+                    
+
+                    $_SESSION['user_id'] = $user['user_id'];
+                    $_SESSION['username'] = $user['username'];
+                    $_SESSION['full_name'] = $user['full_name'];
+                    
+                    $redirect_url = $_SESSION['redirect_url'] ?? 'Posts.php';
+                    unset($_SESSION['redirect_url']);
+                    header("Location: $redirect_url");
+                    exit();
+                } else {
+                    $error = "Invalid password.";
+                }
+            } else {
+                $error = "User not found or Invalid college email."; 
+            }
+        } catch (PDOException $e) {
+            $error = "An unexpected database error occurred. Please try again.";
         }
-    } else {
-        $error = "User not found.";
     }
 }
 ?>
 
-<?php require_once __DIR__ . '/includes/header.php'; ?>
+<?php require_once 'includes/header.php'; ?>
     <div class="auth-container">
         <h1>Log In</h1>
         <p>You need to <a href="NewUser.php">sign up</a> if you are a new user</p>
         
         <?php if (!empty($error)): ?>
-            <div class="error"><?php echo $error; ?></div>
+            <div class="error"><?php echo htmlspecialchars($error); ?></div>
         <?php endif; ?>
         
         <form method="post" class="auth-form">
             <div class="form-group">
-                <label for="user_id">User ID:</label>
-                <input type="text" id="user_id" name="user_id" required>
+                <label for="college_email">College Email:</label>
+                <input type="email" id="college_email" name="college_email" required>
             </div>
             <div class="form-group">
                 <label for="password">Password:</label>
@@ -61,4 +84,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         </form>
     </div>
-<?php require_once __DIR__ . '/includes/footer.php'; ?>
+<?php require_once 'includes/footer.php'; ?>

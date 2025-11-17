@@ -1,28 +1,36 @@
-<?php 
-require_once 'includes/config.php';
+<?php
+require_once 'includes/database.php';
 require_once 'includes/auth.php';
 
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+
 $errors = [];
+$db = Database::getInstance();
+$pdo = $db->getConnection();
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $userId = sanitizeInput($_POST['user_id'], $conn);
-    $name = sanitizeInput($_POST['name'], $conn);
-    $phone = sanitizeInput($_POST['phone'], $conn);
-    $password = sanitizeInput($_POST['password'], $conn);
-    $confirmPassword = sanitizeInput($_POST['confirm_password'], $conn);
-    
-    // Validation
-    if (empty($userId)) {
-        $errors[] = "User ID is required.";
-    } elseif (!preg_match('/^[a-zA-Z0-9]{4,16}$/', $userId)) {
-        $errors[] = "User ID must be 4-16 alphanumeric characters.";
+    $collegeEmail = trim($_POST['college_email'] ?? '');
+    $username = trim($_POST['username'] ?? '');
+    $fullName = trim($_POST['full_name'] ?? '');
+    $password = $_POST['password'] ?? '';
+    $confirmPassword = $_POST['confirm_password'] ?? '';
+
+    if (empty($collegeEmail)) {
+        $errors[] = "College Email is required.";
+    } elseif (!filter_var($collegeEmail, FILTER_VALIDATE_EMAIL)) {
+        $errors[] = "Invalid email format.";
     }
     
-    if (empty($name)) {
-        $errors[] = "Name is required.";
+    if (empty($username)) {
+        $errors[] = "Username is required.";
+    } elseif (!preg_match('/^[a-zA-Z0-9]{4,50}$/', $username)) {
+        $errors[] = "Username must be 4-50 alphanumeric characters.";
     }
     
-    if (!empty($phone) && !preg_match('/^[0-9]{10}$/', $phone)) {
-        $errors[] = "Phone must be 10 digits.";
+    if (empty($fullName)) {
+        $errors[] = "Full Name is required.";
     }
     
     if (empty($password)) {
@@ -33,28 +41,61 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = "Passwords do not match.";
     }
     
-    // Check if user exists
-    $checkUser = $conn->prepare("SELECT UserId FROM User WHERE UserId = ?");
-    $checkUser->bind_param("s", $userId);
-    $checkUser->execute();
-    $checkUser->store_result();
-    
-    if ($checkUser->num_rows > 0) {
-        $errors[] = "User ID already exists.";
-    }
-    
     if (empty($errors)) {
-        $hashedPassword = hashPassword($password);
-        $stmt = $conn->prepare("INSERT INTO User (UserId, Name, Phone, Password) VALUES (?, ?, ?, ?)");
-        $stmt->bind_param("ssss", $userId, $name, $phone, $hashedPassword);
-        
-        if ($stmt->execute()) {
-            $_SESSION['user_id'] = $userId;
-            $_SESSION['user_name'] = $name;
-            header("Location: MyAlbums.php");
-            exit();
-        } else {
-            $errors[] = "Registration failed. Please try again.";
+        try {
+            $checkUserStmt = $pdo->prepare("SELECT user_id FROM Users WHERE username = :username OR college_email = :email");
+            $checkUserStmt->execute([':username' => $username, ':email' => $collegeEmail]);
+            $existingUser = $checkUserStmt->fetch();
+
+            if ($existingUser) {
+                $checkUsernameStmt = $pdo->prepare("SELECT user_id FROM Users WHERE username = :username");
+                $checkUsernameStmt->execute([':username' => $username]);
+                if ($checkUsernameStmt->fetch()) {
+                    $errors[] = "Username already exists.";
+                }
+
+                $checkEmailStmt = $pdo->prepare("SELECT user_id FROM Users WHERE college_email = :email");
+                $checkEmailStmt->execute([':email' => $collegeEmail]);
+                if ($checkEmailStmt->fetch()) {
+                    $errors[] = "College Email already exists.";
+                }
+            }
+
+        } catch (PDOException $e) {
+             $errors[] = "Database error during check: " . $e->getMessage();
+        }
+    }
+
+    if (empty($errors)) {
+        try {
+            $hashedPassword = hashPassword($password);
+            
+            $sql = "INSERT INTO Users (college_email, password_hash, username, full_name) 
+                    VALUES (:email, :password_hash, :username, :full_name)";
+            
+            $stmt = $pdo->prepare($sql);
+            
+            $stmt->execute([
+                ':email' => $collegeEmail,
+                ':password_hash' => $hashedPassword,
+                ':username' => $username,
+                ':full_name' => $fullName
+            ]);
+            
+            $newUserId = $pdo->lastInsertId();
+
+            if ($newUserId) {
+                $_SESSION['user_id'] = $newUserId;
+                $_SESSION['username'] = $username;
+                $_SESSION['full_name'] = $fullName;
+                
+                header("Location: Posts.php");
+                exit();
+            } else {
+                 $errors[] = "Registration failed: Could not retrieve new user ID.";
+            }
+        } catch (PDOException $e) {
+            $errors[] = "Registration failed. Please try again. (DB Error: " . $e->getMessage() . ")";
         }
     }
 }
@@ -68,7 +109,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="error">
                 <ul>
                     <?php foreach ($errors as $error): ?>
-                        <li><?php echo $error; ?></li>
+                        <li><?php echo htmlspecialchars($error); ?></li>
                     <?php endforeach; ?>
                 </ul>
             </div>
@@ -76,19 +117,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         <form method="post" class="auth-form">
             <div class="form-group">
-                <label for="user_id">User ID:</label>
-                <input type="text" id="user_id" name="user_id" required>
-                <small>4-16 alphanumeric characters</small>
+                <label for="college_email">College Email:</label>
+                <input type="email" id="college_email" name="college_email" required 
+                       value="<?php echo htmlspecialchars($collegeEmail ?? ''); ?>">
             </div>
+            
             <div class="form-group">
-                <label for="name">Name:</label>
-                <input type="text" id="name" name="name" required>
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" required
+                       value="<?php echo htmlspecialchars($username ?? ''); ?>">
+                <small>4-50 alphanumeric characters</small>
             </div>
+            
             <div class="form-group">
-                <label for="phone">Phone:</label>
-                <input type="text" id="phone" name="phone">
-                <small>10 digits only</small>
+                <label for="full_name">Full Name:</label>
+                <input type="text" id="full_name" name="full_name" required
+                       value="<?php echo htmlspecialchars($fullName ?? ''); ?>">
             </div>
+            
             <div class="form-group">
                 <label for="password">Password:</label>
                 <input type="password" id="password" name="password" required>
