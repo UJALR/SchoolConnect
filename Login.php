@@ -19,9 +19,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $collegeEmail = trim($_POST['college_email'] ?? '');
     $password = $_POST['password'] ?? '';
     
-    // echo "<script>alert('hi');</script>";
-    // exit();
-
     if (empty($collegeEmail) || empty($password)) {
         $error = "Please enter your college email and password.";
     }

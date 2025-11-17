@@ -1,34 +1,51 @@
 <?php
-require_once 'config.php';
-require_once 'auth.php';
+require_once 'database.php';
 
-function getUserAlbums($userId, $conn) {
-    $stmt = $conn->prepare("SELECT Album_Id, Title FROM Album WHERE Owner_id = ?");
-    $stmt->bind_param("s", $userId);
-    $stmt->execute();
-    return $stmt->get_result();
+// -------------------- USERS --------------------
+function getUserName($userId) {
+    $db = Database::getInstance()->getConnection();
+    $stmt = $db->prepare("SELECT full_name FROM Users WHERE user_id = ?");
+    $stmt->execute([$userId]);
+    return $stmt->fetchColumn() ?: "Unknown User";
 }
 
-function getAlbumAccessibility($albumId, $conn) {
-    $stmt = $conn->prepare("SELECT Accessibility_code FROM Album WHERE Album_Id = ?");
-    $stmt->bind_param("i", $albumId);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    return $result->num_rows > 0 ? $result->fetch_assoc()['Accessibility_code'] : null;
+function getUserProfilePic($userId) {
+    $db = Database::getInstance()->getConnection();
+    $stmt = $db->prepare("SELECT profile_picture FROM Users WHERE user_id = ?");
+    $stmt->execute([$userId]);
+    return $stmt->fetchColumn() ?: "assets/images/default-avatar.png";
 }
 
-function canViewAlbum($userId, $albumId, $conn) {
-    $ownerId = $conn->prepare("SELECT Owner_id FROM Album WHERE Album_Id = ?");
-    $ownerId->bind_param("i", $albumId);
-    $ownerId->execute();
-    $ownerId = $ownerId->get_result()->fetch_assoc()['Owner_id'];
-    
-    if ($ownerId === $userId) return true;
-    
-    $accessibility = getAlbumAccessibility($albumId, $conn);
-    if ($accessibility === 'shared') {
-        return checkFriendship($userId, $ownerId, $conn) === 'accepted';
-    }
-    return false;
+// -------------------- POSTS --------------------
+function createPost($userId, $text, $mediaUrl = null) {
+    $db = Database::getInstance()->getConnection();
+    $stmt = $db->prepare("
+        INSERT INTO Posts (user_id, post_text, media_url)
+        VALUES (?, ?, ?)
+    ");
+    $stmt->execute([$userId, $text, $mediaUrl]);
 }
-?>
+
+function getAllPosts() {
+    $db = Database::getInstance()->getConnection();
+    $query = "
+        SELECT post_id, user_id, post_text, media_url, created_at
+        FROM Posts
+        ORDER BY created_at DESC
+    ";
+    return $db->query($query)->fetchAll(PDO::FETCH_ASSOC);
+}
+
+// -------------------- FRIENDS SUGGESTIONS --------------------
+function getSuggestedFriends($userId) {
+    $db = Database::getInstance()->getConnection();
+    $stmt = $db->prepare("
+        SELECT user_id, full_name, profile_picture
+        FROM Users
+        WHERE user_id != ?
+        ORDER BY RAND()
+        LIMIT 4
+    ");
+    $stmt->execute([$userId]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
