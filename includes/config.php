@@ -6,10 +6,10 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 // Database configuration - 
-define('DB_HOST', 'localhost:3307');
+define('DB_HOST', 'localhost:3306');
 define('DB_USER', 'root');
 define('DB_PASS', '');  
-define('DB_NAME', 'CST8257');
+define('DB_NAME', 'schoolconnectdb');
 
 // Create connection
 $conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
