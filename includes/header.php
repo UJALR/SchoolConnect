@@ -10,17 +10,15 @@ if (session_status() === PHP_SESSION_NONE) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Algonquin Social Media</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <!-- <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet"> -->
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
-    <!-- White Header Banner -->
     <header class="header-banner">
         <div class="header-container">
             <a href="index.php">
                 <img src="assets/images/83-835011_algonquin-college-logo-png.webp" 
-                     alt="Algonquin College" 
-                     class="header-logo" >
+                    alt="Algonquin College" 
+                    class="header-logo" >
             </a>
             <nav>
                 <ul>
@@ -31,7 +29,7 @@ if (session_status() === PHP_SESSION_NONE) {
                         <li><a href="MyPictures.php"><i class="fas fa-photo-video"></i> My Pictures</a></li>
                         <li><a href="UploadPictures.php"><i class="fas fa-cloud-upload-alt"></i> Upload Pictures</a></li>
                         <li class="user-greeting">
-                            <span><?= htmlspecialchars($_SESSION['user_name']) ?></span>
+                            <span><?= htmlspecialchars($_SESSION['full_name'] ?? $_SESSION['username'] ?? 'User') ?></span>
                             <a href="Logout.php"><i class="fas fa-sign-out-alt"></i></a>
                         </li>
                     <?php else: ?>
@@ -42,6 +40,5 @@ if (session_status() === PHP_SESSION_NONE) {
         </div>
     </header>
     
-    <!-- Main Content Area -->
     <main class="main-content">
         <div class="content-container">
