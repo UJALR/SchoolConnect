@@ -48,7 +48,7 @@ $posts = getAllPosts(); // newest → oldest
     <aside class="sidebar-left">
         <input type="text" class="search-box" placeholder="Search">
         <nav class="sidebar-links">
-            <a href="#">My Profile</a>
+            <a href="userProfile.php">My Profile</a>
             <a href="MyFriends.php">Friends</a>
             <a href="#">Groups</a>
             <a href="Logout.php">Logout</a>
@@ -98,8 +98,11 @@ $posts = getAllPosts(); // newest → oldest
             <div class="buddy-item">
                 <img src="<?= htmlspecialchars($fr['profile_picture']) ?>" class="avatar-xs">
                 <span><?= htmlspecialchars($fr['full_name']) ?></span>
+                
             </div>
+        
         <?php endforeach; ?>
+<a href="viewFriends.php" class="view-all-link">View All </a>
 
         <div class="section-title">Join a Community</div>
         <a class="community-item" href="#">Code & Coffee</a>
