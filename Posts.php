@@ -18,7 +18,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_post'])) {
     // Handle image upload
     if (!empty($_FILES['media_file']['name'])) {
         $uploadDir = "uploads/posts/";
-        if (!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
+        if (!is_dir($uploadDir))
+            mkdir($uploadDir, 0777, true);
 
         $fileTmp = $_FILES['media_file']['tmp_name'];
         $fileName = time() . "_" . basename($_FILES['media_file']['name']);
@@ -35,6 +36,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_post'])) {
     exit;
 }
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_comment'])) {
+    $postId = (int)$_POST['post_id'];
+    $commentText = trim($_POST['comment_text']);
+
+    if (!empty($commentText) && $postId > 0) {
+        createComment($postId, $userId, $commentText);
+    }
+
+    // Redirect to clear POST data and show the new comment
+    header("Location: Posts.php#post-" . $postId);
+    exit;
+}
+
 $posts = getAllPosts(); // newest → oldest
 ?>
 
@@ -48,8 +62,16 @@ $posts = getAllPosts(); // newest → oldest
     <aside class="sidebar-left">
         <input type="text" class="search-box" placeholder="Search">
         <nav class="sidebar-links">
-            <a href="#">My Profile</a>
-            <a href="MyFriends.php">Friends</a>
+            <a href="userProfile.php">My Profile</a>
+            <?php $pendingCount = getPendingFriendRequestCount($userId); ?>
+
+            <a href="viewMyFriends.php" class="friends-link">
+                Friends
+                <?php if ($pendingCount > 0): ?>
+                    <span class="friend-badge"><?= $pendingCount ?></span>
+                <?php endif; ?>
+            </a>
+
             <a href="#">Groups</a>
             <a href="Logout.php">Logout</a>
         </nav>
@@ -67,26 +89,64 @@ $posts = getAllPosts(); // newest → oldest
 
         <!-- FEED POSTS -->
         <?php foreach ($posts as $post): ?>
-        <div class="post-card">
-            <div class="post-header">
-                <img src="<?= htmlspecialchars(getUserProfilePic($post['user_id'])) ?>" class="avatar-sm">
-                <div>
-                    <strong><?= htmlspecialchars(getUserName($post['user_id'])) ?></strong><br>
-                    <span class="post-date"><?= htmlspecialchars($post['created_at']) ?></span>
+            <div class="post-card" id="post-<?= $post['post_id'] ?>">
+                <div class="post-header">
+                    <img src="<?= htmlspecialchars(getUserProfilePic($post['user_id'])) ?>" class="avatar-sm">
+                    <div>
+                        <strong><?= htmlspecialchars(getUserName($post['user_id'])) ?></strong><br>
+                        <span class="post-date"><?= date("M j, Y H:i", strtotime($post['created_at'])) ?></span>
+                    </div>
                 </div>
-            </div>
 
-            <p class="post-text"><?= nl2br(htmlspecialchars($post['post_text'])) ?></p>
+                <p class="post-text"><?= nl2br(htmlspecialchars($post['post_text'])) ?></p>
 
-            <?php if ($post['media_url']): ?>
-                <img src="<?= htmlspecialchars($post['media_url']) ?>" class="post-image">
-            <?php endif; ?>
+                <?php if ($post['media_url']): ?>
+                    <img src="<?= htmlspecialchars($post['media_url']) ?>" class="post-image">
+                <?php endif; ?>
 
-            <div class="post-actions">
-                <a href="#">Comment</a>
-                <a href="#">Share</a>
-            </div>
-        </div>
+                <div class="post-actions">
+                    <a href="#comment-form-<?= $post['post_id'] ?>" onclick="document.getElementById('comment-input-<?= $post['post_id'] ?>').focus(); return false;">Comment</a>
+                    <a href="#">Share</a>
+                </div>
+                
+                <div class="comment-section">
+
+                    <form action="Posts.php" method="POST" class="comment-form" id="comment-form-<?= $post['post_id'] ?>">
+                        <input type="hidden" name="post_id" value="<?= $post['post_id'] ?>">
+                        <input 
+                            type="text" 
+                            name="comment_text" 
+                            id="comment-input-<?= $post['post_id'] ?>" 
+                            class="comment-input-field" 
+                            placeholder="Add a comment..." 
+                            required
+                        >
+                        <button type="submit" name="submit_comment" class="comment-btn">
+                            <i class="fa fa-comment"></i>
+                        </button>
+                    </form>
+
+                    <div class="comments-list">
+                        <?php 
+                        $comments = getCommentsForPost($post['post_id']); 
+                        foreach ($comments as $comment): 
+                            $commentAvatar = $comment['profile_picture'] ?: 'assets/images/default-avatar.png';
+                        ?>
+                            <div class="comment-item">
+                                <img src="<?= htmlspecialchars($commentAvatar) ?>" class="avatar-xs">
+                                <div class="comment-content">
+                                    <span class="comment-author">
+                                        <a href="friendProfile.php?user_id=<?= $comment['user_id'] ?>">
+                                            <?= htmlspecialchars($comment['full_name']) ?>
+                                        </a>
+                                    </span>
+                                    <span class="comment-text-content"><?= htmlspecialchars($comment['comment_text']) ?></span>
+                                    </div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+                            </div>
         <?php endforeach; ?>
 
     </div>
@@ -95,11 +155,14 @@ $posts = getAllPosts(); // newest → oldest
     <aside class="sidebar-right">
         <div class="section-title">Potential Buddies</div>
         <?php foreach (getSuggestedFriends($userId) as $fr): ?>
-            <div class="buddy-item">
-                <img src="<?= htmlspecialchars($fr['profile_picture']) ?>" class="avatar-xs">
+            <a href="friendProfile.php?user_id=<?= $fr['user_id'] ?>" class="buddy-item"
+                style="text-decoration:none;color:inherit;">
+                <img src="<?= htmlspecialchars($fr['profile_picture'] ?: 'assets/images/default-avatar.png') ?>"
+                    class="avatar-xs">
                 <span><?= htmlspecialchars($fr['full_name']) ?></span>
-            </div>
+            </a>
         <?php endforeach; ?>
+        <a href="viewFriends.php" class="view-all-link">View All </a>
 
         <div class="section-title">Join a Community</div>
         <a class="community-item" href="#">Code & Coffee</a>
@@ -120,7 +183,8 @@ $posts = getAllPosts(); // newest → oldest
         <h3>Create Post</h3>
 
         <form action="Posts.php" method="POST" enctype="multipart/form-data">
-            <textarea id="modalPostText" name="post_text" class="modal-textarea" placeholder="Write something..."></textarea>
+            <textarea id="modalPostText" name="post_text" class="modal-textarea"
+                placeholder="Write something..."></textarea>
 
             <label class="upload-label">
                 <i class="fa fa-image"></i> Upload Image
