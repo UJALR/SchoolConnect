@@ -36,6 +36,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_post'])) {
     exit;
 }
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_comment'])) {
+    $postId = (int)$_POST['post_id'];
+    $commentText = trim($_POST['comment_text']);
+
+    if (!empty($commentText) && $postId > 0) {
+        createComment($postId, $userId, $commentText);
+    }
+
+    // Redirect to clear POST data and show the new comment
+    header("Location: Posts.php#post-" . $postId);
+    exit;
+}
+
 $posts = getAllPosts(); // newest → oldest
 ?>
 
@@ -76,12 +89,12 @@ $posts = getAllPosts(); // newest → oldest
 
         <!-- FEED POSTS -->
         <?php foreach ($posts as $post): ?>
-            <div class="post-card">
+            <div class="post-card" id="post-<?= $post['post_id'] ?>">
                 <div class="post-header">
                     <img src="<?= htmlspecialchars(getUserProfilePic($post['user_id'])) ?>" class="avatar-sm">
                     <div>
                         <strong><?= htmlspecialchars(getUserName($post['user_id'])) ?></strong><br>
-                        <span class="post-date"><?= htmlspecialchars($post['created_at']) ?></span>
+                        <span class="post-date"><?= date("M j, Y H:i", strtotime($post['created_at'])) ?></span>
                     </div>
                 </div>
 
@@ -92,10 +105,48 @@ $posts = getAllPosts(); // newest → oldest
                 <?php endif; ?>
 
                 <div class="post-actions">
-                    <a href="#">Comment</a>
+                    <a href="#comment-form-<?= $post['post_id'] ?>" onclick="document.getElementById('comment-input-<?= $post['post_id'] ?>').focus(); return false;">Comment</a>
                     <a href="#">Share</a>
                 </div>
-            </div>
+                
+                <div class="comment-section">
+
+                    <form action="Posts.php" method="POST" class="comment-form" id="comment-form-<?= $post['post_id'] ?>">
+                        <input type="hidden" name="post_id" value="<?= $post['post_id'] ?>">
+                        <input 
+                            type="text" 
+                            name="comment_text" 
+                            id="comment-input-<?= $post['post_id'] ?>" 
+                            class="comment-input-field" 
+                            placeholder="Add a comment..." 
+                            required
+                        >
+                        <button type="submit" name="submit_comment" class="comment-btn">
+                            <i class="fa fa-comment"></i>
+                        </button>
+                    </form>
+
+                    <div class="comments-list">
+                        <?php 
+                        $comments = getCommentsForPost($post['post_id']); 
+                        foreach ($comments as $comment): 
+                            $commentAvatar = $comment['profile_picture'] ?: 'assets/images/default-avatar.png';
+                        ?>
+                            <div class="comment-item">
+                                <img src="<?= htmlspecialchars($commentAvatar) ?>" class="avatar-xs">
+                                <div class="comment-content">
+                                    <span class="comment-author">
+                                        <a href="friendProfile.php?user_id=<?= $comment['user_id'] ?>">
+                                            <?= htmlspecialchars($comment['full_name']) ?>
+                                        </a>
+                                    </span>
+                                    <span class="comment-text-content"><?= htmlspecialchars($comment['comment_text']) ?></span>
+                                    </div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+                            </div>
         <?php endforeach; ?>
 
     </div>

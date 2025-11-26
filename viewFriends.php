@@ -120,17 +120,15 @@ include 'includes/header.php';
                 <?php $statusData = getFriendshipStatus($userId, $person['user_id']); ?>
 
                 <div class="buddy-item" data-name="<?= strtolower(htmlspecialchars($person['full_name'])) ?>">
-                    <div class="buddy-info">
-                        <img src="<?= htmlspecialchars($person['profile_picture'] ?: 'assets/images/default-avatar.png') ?>" class="avatar-xs">
-                        <div style="color:white;">
-                            <div style="font-weight:600;">
-                                <?= htmlspecialchars($person['full_name']) ?>
-                            </div>
-                            <div style="font-size:0.9rem;color:#d1fae5;">
-                                @<?= htmlspecialchars($person['username']) ?>
-                            </div>
+                    <a href="friendProfile.php?user_id=<?= $person['user_id'] ?>" class="buddy-info"
+                        style="display: flex; gap: 12px; align-items: center;">
+                        <img src="<?= htmlspecialchars($person['profile_picture'] ?: 'assets/images/default-avatar.png') ?>"
+                            class="avatar-xs">
+                        <div>
+                            <strong style="color: white;"><?= htmlspecialchars($person['full_name']) ?></strong><br>
+                            <small style="color: #ccc;">@<?= htmlspecialchars($person['username']) ?></small>
                         </div>
-                    </div>
+                    </a>
 
                     <div>
                         <?php if (!$statusData): ?>

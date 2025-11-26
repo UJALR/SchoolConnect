@@ -36,6 +36,18 @@ function getAllPosts() {
     return $db->query($query)->fetchAll(PDO::FETCH_ASSOC);
 }
 
+function getPostsByUserId($userId) {
+    $db = Database::getInstance()->getConnection();
+    $stmt = $db->prepare("
+        SELECT post_id, user_id, post_text, media_url, created_at
+        FROM Posts
+        WHERE user_id = ?
+        ORDER BY created_at DESC
+    ");
+    $stmt->execute([$userId]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
 // -------------------- FRIENDS SUGGESTIONS --------------------
 function getSuggestedFriends($userId) {
     $db = Database::getInstance()->getConnection();
@@ -333,4 +345,43 @@ function updateInterestsAndLanguages($userId, $interests, $languages) {
     }
 
     return true;
+}
+/**
+ * @param int $postId The ID of the post being commented on.
+ * @param int $userId The ID of the user submitting the comment.
+ * @param string $commentText The content of the comment.
+ * @return bool True on success, false on failure.
+ */
+function createComment($postId, $userId, $commentText) {
+    $db = Database::getInstance()->getConnection();
+    $stmt = $db->prepare("
+        INSERT INTO UserComments (post_id, user_id, comment_text)
+        VALUES (?, ?, ?)
+    ");
+    return $stmt->execute([$postId, $userId, $commentText]);
+}
+
+/**
+ * Retrieves all comments for a specific post, ordered by creation time.
+ * Includes user information for display.
+ * @param int $postId The ID of the post.
+ * @return array Array of comments.
+ */
+function getCommentsForPost($postId) {
+    $db = Database::getInstance()->getConnection();
+    $stmt = $db->prepare("
+        SELECT 
+            c.comment_id, 
+            c.user_id, 
+            c.comment_text, 
+            c.created_at, 
+            u.full_name, 
+            u.profile_picture
+        FROM UserComments c
+        JOIN Users u ON c.user_id = u.user_id
+        WHERE c.post_id = ?
+        ORDER BY c.created_at ASC
+    ");
+    $stmt->execute([$postId]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
