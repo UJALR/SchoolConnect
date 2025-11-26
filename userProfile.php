@@ -45,8 +45,7 @@ $avatar = $user['profile_picture'] ?: "assets/images/default-avatar.png";
 // Set cover path
 $cover = $user['cover_picture'] ?: "assets/images/default-cover.jpg";
 
-/* ====== FRIENDS + REQUESTS FOR LEFT PANEL ====== */
-$friendsAndRequests = getUserFriendsAndRequests($userId);
+
 
 /* ====== HEADER ====== */
 include __DIR__ . "/includes/header.php";
@@ -270,66 +269,14 @@ include __DIR__ . "/includes/header.php";
         <input type="text" class="search-box" placeholder="Search">
         <nav class="sidebar-links">
             <a href="userProfile.php" class="active-link">My Profile</a>
+           <?php $pendingCount = getPendingFriendRequestCount($userId); ?>
 
-            <!-- Not scrolling anywhere -->
-            <a href="javascript:void(0)">Friends</a>
-
-            <!-- FRIENDS / REQUESTS LIST (inside the white panel) -->
-        <div class="friends-panel">
-    <?php if (empty($friendsAndRequests)): ?>
-        <p style="color:#6b7280;">No friends or requests yet.</p>
-    <?php else: ?>
-        <?php foreach ($friendsAndRequests as $fr): 
-            $otherId    = $fr['user_id'];
-            $status     = $fr['status'];
-            $isOutgoing = ($fr['user_id_sender'] == $userId);
-        ?>
-            <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;">
-
-                <!-- ONLY CHANGE: wrap avatar+name in <a> -->
-                <a href="friendProfile.php?id=<?= $otherId ?>"
-                   style="display:flex;align-items:center;gap:8px;text-decoration:none;color:inherit;">
-                    <img src="<?= htmlspecialchars($fr['profile_picture'] ?: 'assets/images/default-avatar.png') ?>"
-                         class="avatar-xs">
-                    <span><?= htmlspecialchars($fr['full_name']) ?></span>
-                </a>
-
-                <form method="POST" style="margin:0;">
-                    <input type="hidden" name="other_id" value="<?= $otherId ?>">
-
-                    <?php if ($status === 'accepted'): ?>
-                        <button type="submit"
-                                name="friend_action"
-                                value="unfriend"
-                                class="edit-profile-btn"
-                                style="background:#dc2626;padding:6px 10px;font-size:0.8rem;">
-                            Unfriend
-                        </button>
-
-                    <?php elseif ($status === 'pending' && $isOutgoing): ?>
-                        <button type="submit"
-                                name="friend_action"
-                                value="cancel"
-                                class="edit-profile-btn"
-                                style="background:#f97316;padding:6px 10px;font-size:0.8rem;">
-                            Cancel
-                        </button>
-
-                    <?php elseif ($status === 'pending' && !$isOutgoing): ?>
-                        <button type="submit"
-                                name="friend_action"
-                                value="accept"
-                                class="edit-profile-btn"
-                                style="background:#22c55e;padding:6px 10px;font-size:0.8rem;">
-                            Accept
-                        </button>
-                    <?php endif; ?>
-                </form>
-            </div>
-        <?php endforeach; ?>
+<a href="viewMyFriends.php" class="friends-link">
+    Friends
+    <?php if ($pendingCount > 0): ?>
+        <span class="friend-badge"><?= $pendingCount ?></span>
     <?php endif; ?>
-</div>
-
+</a>
 
             <a href="groups.php">Groups</a>
             <a href="Logout.php">Logout</a>
@@ -439,7 +386,7 @@ include __DIR__ . "/includes/header.php";
     <aside class="sidebar-right">
         <div class="section-title">Potential Buddies</div>
         <?php foreach (getSuggestedFriends($userId) as $fr): ?>
-    <a href="friendProfile.php?id=<?= $fr['user_id'] ?>" class="buddy-item" style="text-decoration:none;color:inherit;">
+    <a href="friendProfile.php?user_id=<?= $fr['user_id'] ?>" class="buddy-item" style="text-decoration:none;color:inherit;">
         <img src="<?= htmlspecialchars($fr['profile_picture'] ?: 'assets/images/default-avatar.png') ?>" class="avatar-xs">
         <span><?= htmlspecialchars($fr['full_name']) ?></span>
     </a>

@@ -883,3 +883,21 @@ textarea:focus {
     flex: 1; /* Take remaining space */
   }
 }
+
+.friends-link {
+  position: relative;
+  display: inline-block;
+}
+
+.friend-badge {
+  position: absolute;
+  top: -4px;
+  right: -10px;
+  background: #dc2626;
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+  padding: 3px 7px;
+  border-radius: 999px;
+  line-height: 1;
+}

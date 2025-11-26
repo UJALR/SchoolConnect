@@ -88,7 +88,9 @@
   border-bottom: 1px solid #f1f1f1;
   font-weight: 600;
 }
-.community-item:last-child { border-bottom: none; }
+.community-item:last-child {
+  border-bottom: none;
+}
 
 /* Center feed */
 .feed-main {
@@ -116,7 +118,7 @@
   border-radius: 50%;
   object-fit: cover;
   border: 2px solid white;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
 }
 
 #mainPostInput {
@@ -128,7 +130,7 @@
   font-size: 0.95rem;
   color: #333;
   box-shadow: none;
-  transition: box-shadow .15s ease, border-color .15s ease;
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
 }
 
 #mainPostInput::placeholder {
@@ -153,11 +155,11 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  box-shadow: 0 2px 0 rgba(0,0,0,0.03);
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.03);
 }
 .post-btn:hover {
   transform: translateY(-1px);
-  box-shadow: 0 6px 12px rgba(0,0,0,0.05);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.05);
 }
 
 /* Individual post card */
@@ -273,20 +275,19 @@
 } */
 
 #postModal.modal {
-    position: fixed;
-    inset: 0;               
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    top: -1000px;
+  position: fixed;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  top: -1000px;
 
-    opacity: 0;
-    pointer-events: none;
-    /* transform: translateY(-1000px); */
-    transition: all 0.35s ease;
-    z-index: 2000;            /* above everything */
+  opacity: 0;
+  pointer-events: none;
+  /* transform: translateY(-1000px); */
+  transition: all 0.35s ease;
+  z-index: 2000; /* above everything */
 }
-
 
 /* .modal.open {
     opacity: 1;
@@ -295,30 +296,27 @@
 } */
 
 #postModal.modal.open {
-    opacity: 1;
-    pointer-events: auto;
-    /* transform: translateY(1000px); */
-    top: 25%;
+  opacity: 1;
+  pointer-events: auto;
+  /* transform: translateY(1000px); */
+  top: 25%;
 }
 
-
 .modal-backdrop {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.45);
-    z-index: 1500;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 1500;
 
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.35s ease;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s ease;
 }
 
 .modal-backdrop.open {
-    opacity: 1;
-    pointer-events: auto;
+  opacity: 1;
+  pointer-events: auto;
 }
-
-
 
 #postModal.modal.show {
   display: flex;

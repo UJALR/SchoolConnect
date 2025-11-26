@@ -204,21 +204,43 @@ function getUserFriendsAndRequests($userId) {
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
-
 // Accept an incoming friend request
 function acceptFriendRequest($senderId, $receiverId) {
     $db = Database::getInstance()->getConnection();
 
-    $stmt = $db->prepare("
+    $sql = "
         UPDATE userfriends
         SET status = 'accepted'
-        WHERE user_id_sender = :sender
-          AND user_id_receiver = :receiver
-          AND status = 'pending'
-    ");
+        WHERE status = 'pending'
+          AND (
+            (user_id_sender = ? AND user_id_receiver = ?)
+            OR
+            (user_id_sender = ? AND user_id_receiver = ?)
+          )
+    ";
 
+    $stmt = $db->prepare($sql);
     $stmt->execute([
-        ':sender'   => $senderId,
-        ':receiver' => $receiverId
+        $senderId,
+        $receiverId,
+        $receiverId,
+        $senderId
     ]);
 }
+
+
+//this func is for the popUp for frnd req
+function getPendingFriendRequestCount($userId) {
+    $db = Database::getInstance()->getConnection();
+
+    $stmt = $db->prepare("
+        SELECT COUNT(*) 
+        FROM userfriends 
+        WHERE user_id_receiver = ? 
+        AND status = 'pending'
+    ");
+    $stmt->execute([$userId]);
+
+    return (int)$stmt->fetchColumn();
+}
+

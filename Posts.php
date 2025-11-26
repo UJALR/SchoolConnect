@@ -49,7 +49,15 @@ $posts = getAllPosts(); // newest → oldest
         <input type="text" class="search-box" placeholder="Search">
         <nav class="sidebar-links">
             <a href="userProfile.php">My Profile</a>
-            <a href="MyFriends.php">Friends</a>
+            <?php $pendingCount = getPendingFriendRequestCount($userId); ?>
+
+<a href="viewMyFriends.php" class="friends-link">
+    Friends
+    <?php if ($pendingCount > 0): ?>
+        <span class="friend-badge"><?= $pendingCount ?></span>
+    <?php endif; ?>
+</a>
+
             <a href="#">Groups</a>
             <a href="Logout.php">Logout</a>
         </nav>
@@ -92,16 +100,14 @@ $posts = getAllPosts(); // newest → oldest
     </div>
 
     <!-- RIGHT SIDEBAR -->
-    <aside class="sidebar-right">
+      <aside class="sidebar-right">
         <div class="section-title">Potential Buddies</div>
         <?php foreach (getSuggestedFriends($userId) as $fr): ?>
-            <div class="buddy-item">
-                <img src="<?= htmlspecialchars($fr['profile_picture']) ?>" class="avatar-xs">
-                <span><?= htmlspecialchars($fr['full_name']) ?></span>
-                
-            </div>
-        
-        <?php endforeach; ?>
+    <a href="friendProfile.php?user_id=<?= $fr['user_id'] ?>" class="buddy-item" style="text-decoration:none;color:inherit;">
+        <img src="<?= htmlspecialchars($fr['profile_picture'] ?: 'assets/images/default-avatar.png') ?>" class="avatar-xs">
+        <span><?= htmlspecialchars($fr['full_name']) ?></span>
+    </a>
+<?php endforeach; ?>
 <a href="viewFriends.php" class="view-all-link">View All </a>
 
         <div class="section-title">Join a Community</div>
