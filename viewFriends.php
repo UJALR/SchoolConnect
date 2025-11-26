@@ -175,6 +175,25 @@ include 'includes/header.php';
 
     </div>
 
+
+    <!-- RIGHT SIDEBAR -->
+    <aside class="sidebar-right">
+        <div class="section-title">Potential Buddies</div>
+        <?php foreach (getSuggestedFriends($userId) as $fr): ?>
+            <a href="friendProfile.php?user_id=<?= $fr['user_id'] ?>" class="buddy-item"
+                style="text-decoration:none;color:inherit;">
+                <img src="<?= htmlspecialchars($fr['profile_picture'] ?: 'assets/images/default-avatar.png') ?>"
+                    class="avatar-xs">
+                <span><?= htmlspecialchars($fr['full_name']) ?></span>
+            </a>
+        <?php endforeach; ?>
+        <a href="viewFriends.php" class="view-all-link">View All </a>
+
+        <div class="section-title">Join a Community</div>
+        <a class="community-item" href="#">Code & Coffee</a>
+        <a class="community-item" href="#">Green Campus</a>
+        <a class="community-item" href="#">Study Sprint</a>
+    </aside>
 </div>
 
 <script>
