@@ -104,7 +104,7 @@ include 'includes/header.php';
         <nav class="sidebar-links">
             <a href="Posts.php">Home</a>
             <a href="userProfile.php">My Profile</a>
-            <a href="viewFriends.php" class="active-link">Friends</a>
+            <a href="viewMyFriends.php" class="active-link">Friends</a>
             <a href="Logout.php">Logout</a>
         </nav>
     </aside>

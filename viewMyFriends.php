@@ -123,19 +123,18 @@ include 'includes/header.php';
 <?php else: ?>
     <?php foreach ($friends as $friend): ?>
         <div class="buddyitem" style="display: flex; gap: 40px;padding: 8px 0; align-items: center;">
-            <div class="buddy-info" style="display: flex; gap: 12px; align-items: center;">
-                <img src="<?= htmlspecialchars($friend['profile_picture'] ?: 'assets/images/default-avatar.png') ?>" class="avatar-xs">
+            
+            <a href="friendProfile.php?user_id=<?= $friend['user_id'] ?>" class="buddy-info" 
+                style="display: flex; gap: 12px; align-items: center;">
+                <img src="<?= htmlspecialchars($friend['profile_picture'] ?: 'assets/images/default-avatar.png') ?>"
+                    class="avatar-xs">
                 <div>
                     <strong style="color: white;"><?= htmlspecialchars($friend['full_name']) ?></strong><br>
                     <small style="color: #ccc;">@<?= htmlspecialchars($friend['username']) ?></small>
                 </div>
-            </div>
+            </a>
 
             <div class="buddy-actions">
-                <!-- View Profile Button -->
-                <a href="friendProfile.php?user_id=<?= $friend['user_id'] ?>" class="view-btn">
-                    View Profile
-                </a>
 
                 <?php if ($friend['status'] === 'pending' && $friend['user_id_sender'] != $userId): ?>
                     <!-- Incoming request -->

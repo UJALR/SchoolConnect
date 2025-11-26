@@ -26,7 +26,6 @@ $stmt = $db->prepare("
         college_email,
         bio,
         profile_picture,
-        cover_picture,
         created_at
     FROM Users
     WHERE user_id = ?
@@ -40,7 +39,6 @@ if (!$friend) {
 }
 
 $avatar = $friend['profile_picture'] ?: "assets/images/default-avatar.png";
-$cover  = $friend['cover_picture'] ?: "assets/images/default-cover.jpg";
 
 $friendshipStatus = getFriendshipStatus($userId, $friendId);
 
@@ -215,15 +213,6 @@ include __DIR__ . "/includes/header.php";
     <div class="feed-main">
 
         <div class="profile-card">
-            
-            <div class="profile-banner"
-                style="
-                    background-image: url('<?= htmlspecialchars($cover) ?>');
-                    background-size: cover;
-                    background-position: center;
-                ">
-            </div>
-
             <div class="profile-header">
 
                 <div class="profile-avatar-wrap">

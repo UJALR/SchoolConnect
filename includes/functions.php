@@ -44,7 +44,7 @@ function getSuggestedFriends($userId) {
         FROM Users
         WHERE user_id != ?
         ORDER BY RAND()
-        LIMIT 4
+        LIMIT 3
     ");
     $stmt->execute([$userId]);
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -244,3 +244,93 @@ function getPendingFriendRequestCount($userId) {
     return (int)$stmt->fetchColumn();
 }
 
+// -------------------- INTERESTS & LANGUAGES --------------------
+function getInterestsForUser($userId) {
+    $db = Database::getInstance()->getConnection();
+    $stmt = $db->prepare("
+        SELECT i.interest_name
+        FROM UserInterests ui
+        JOIN Interests i ON ui.interest_id = i.interest_id
+        WHERE ui.user_id = ?
+    ");
+    $stmt->execute([$userId]);
+    return $stmt->fetchAll(PDO::FETCH_COLUMN);
+}
+
+function getLanguagesForUser($userId) {
+    $db = Database::getInstance()->getConnection();
+    $stmt = $db->prepare("
+        SELECT l.language_name
+        FROM UserLanguages ul
+        JOIN Languages l ON ul.language_id = l.language_id
+        WHERE ul.user_id = ?
+    ");
+    $stmt->execute([$userId]);
+    return $stmt->fetchAll(PDO::FETCH_COLUMN);
+}
+
+function getAllInterests() {
+    $db = Database::getInstance()->getConnection();
+    $query = "SELECT interest_name FROM Interests ORDER BY interest_name ASC";
+    return $db->query($query)->fetchAll(PDO::FETCH_COLUMN);
+}
+
+function getAllLanguages() {
+    $db = Database::getInstance()->getConnection();
+    $query = "SELECT language_name FROM Languages ORDER BY language_name ASC";
+    return $db->query($query)->fetchAll(PDO::FETCH_COLUMN);
+}
+
+function updateInterestsAndLanguages($userId, $interests, $languages) {
+    $db = Database::getInstance()->getConnection();
+
+    // 1. Clear existing interests and languages for the user
+    $db->prepare("DELETE FROM UserInterests WHERE user_id = ?")->execute([$userId]);
+    $db->prepare("DELETE FROM UserLanguages WHERE user_id = ?")->execute([$userId]);
+
+    // 2. Process Interests
+    if (!empty($interests)) {
+        foreach ($interests as $name) {
+            $name = trim($name);
+            if (empty($name)) continue;
+
+            // Find or create Interest
+            $stmt = $db->prepare("SELECT interest_id FROM Interests WHERE interest_name = ?");
+            $stmt->execute([$name]);
+            $interestId = $stmt->fetchColumn();
+
+            if (!$interestId) {
+                $db->prepare("INSERT INTO Interests (interest_name) VALUES (?)")->execute([$name]);
+                $interestId = $db->lastInsertId();
+            }
+
+            // Create UserInterest relation
+            $db->prepare("INSERT INTO UserInterests (user_id, interest_id) VALUES (?, ?)")
+               ->execute([$userId, $interestId]);
+        }
+    }
+
+    // 3. Process Languages
+    if (!empty($languages)) {
+        foreach ($languages as $name) {
+            $name = trim($name);
+            if (empty($name)) continue;
+            
+            // Find or create Language
+            $stmt = $db->prepare("SELECT language_id FROM Languages WHERE language_name = ?");
+            $stmt->execute([$name]);
+            $languageId = $stmt->fetchColumn();
+
+            if (!$languageId) {
+                $db->prepare("INSERT INTO Languages (language_name) VALUES (?)")->execute([$name]);
+                $languageId = $db->lastInsertId();
+            }
+
+            // Create UserLanguage relation
+            $db->prepare("INSERT INTO UserLanguages (user_id, language_id) VALUES (?, ?)")
+               ->execute([$userId, $languageId]);
+        }
+    }
+
+    return true;
+}

@@ -13,7 +13,7 @@ if (session_status() === PHP_SESSION_NONE) {
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
-    <header class="header-banner">
+    <!-- <header class="header-banner">
         <div class="header-container">
             <a href="index.php">
                 <img src="assets/images/83-835011_algonquin-college-logo-png.webp" 
@@ -38,7 +38,7 @@ if (session_status() === PHP_SESSION_NONE) {
                 </ul>
             </nav>
         </div>
-    </header>
+    </header> -->
     
     <main class="main-content">
         <div class="content-container">

@@ -18,7 +18,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_post'])) {
     // Handle image upload
     if (!empty($_FILES['media_file']['name'])) {
         $uploadDir = "uploads/posts/";
-        if (!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
+        if (!is_dir($uploadDir))
+            mkdir($uploadDir, 0777, true);
 
         $fileTmp = $_FILES['media_file']['tmp_name'];
         $fileName = time() . "_" . basename($_FILES['media_file']['name']);
@@ -51,12 +52,12 @@ $posts = getAllPosts(); // newest → oldest
             <a href="userProfile.php">My Profile</a>
             <?php $pendingCount = getPendingFriendRequestCount($userId); ?>
 
-<a href="viewMyFriends.php" class="friends-link">
-    Friends
-    <?php if ($pendingCount > 0): ?>
-        <span class="friend-badge"><?= $pendingCount ?></span>
-    <?php endif; ?>
-</a>
+            <a href="viewMyFriends.php" class="friends-link">
+                Friends
+                <?php if ($pendingCount > 0): ?>
+                    <span class="friend-badge"><?= $pendingCount ?></span>
+                <?php endif; ?>
+            </a>
 
             <a href="#">Groups</a>
             <a href="Logout.php">Logout</a>
@@ -75,40 +76,42 @@ $posts = getAllPosts(); // newest → oldest
 
         <!-- FEED POSTS -->
         <?php foreach ($posts as $post): ?>
-        <div class="post-card">
-            <div class="post-header">
-                <img src="<?= htmlspecialchars(getUserProfilePic($post['user_id'])) ?>" class="avatar-sm">
-                <div>
-                    <strong><?= htmlspecialchars(getUserName($post['user_id'])) ?></strong><br>
-                    <span class="post-date"><?= htmlspecialchars($post['created_at']) ?></span>
+            <div class="post-card">
+                <div class="post-header">
+                    <img src="<?= htmlspecialchars(getUserProfilePic($post['user_id'])) ?>" class="avatar-sm">
+                    <div>
+                        <strong><?= htmlspecialchars(getUserName($post['user_id'])) ?></strong><br>
+                        <span class="post-date"><?= htmlspecialchars($post['created_at']) ?></span>
+                    </div>
+                </div>
+
+                <p class="post-text"><?= nl2br(htmlspecialchars($post['post_text'])) ?></p>
+
+                <?php if ($post['media_url']): ?>
+                    <img src="<?= htmlspecialchars($post['media_url']) ?>" class="post-image">
+                <?php endif; ?>
+
+                <div class="post-actions">
+                    <a href="#">Comment</a>
+                    <a href="#">Share</a>
                 </div>
             </div>
-
-            <p class="post-text"><?= nl2br(htmlspecialchars($post['post_text'])) ?></p>
-
-            <?php if ($post['media_url']): ?>
-                <img src="<?= htmlspecialchars($post['media_url']) ?>" class="post-image">
-            <?php endif; ?>
-
-            <div class="post-actions">
-                <a href="#">Comment</a>
-                <a href="#">Share</a>
-            </div>
-        </div>
         <?php endforeach; ?>
 
     </div>
 
     <!-- RIGHT SIDEBAR -->
-      <aside class="sidebar-right">
+    <aside class="sidebar-right">
         <div class="section-title">Potential Buddies</div>
         <?php foreach (getSuggestedFriends($userId) as $fr): ?>
-    <a href="friendProfile.php?user_id=<?= $fr['user_id'] ?>" class="buddy-item" style="text-decoration:none;color:inherit;">
-        <img src="<?= htmlspecialchars($fr['profile_picture'] ?: 'assets/images/default-avatar.png') ?>" class="avatar-xs">
-        <span><?= htmlspecialchars($fr['full_name']) ?></span>
-    </a>
-<?php endforeach; ?>
-<a href="viewFriends.php" class="view-all-link">View All </a>
+            <a href="friendProfile.php?user_id=<?= $fr['user_id'] ?>" class="buddy-item"
+                style="text-decoration:none;color:inherit;">
+                <img src="<?= htmlspecialchars($fr['profile_picture'] ?: 'assets/images/default-avatar.png') ?>"
+                    class="avatar-xs">
+                <span><?= htmlspecialchars($fr['full_name']) ?></span>
+            </a>
+        <?php endforeach; ?>
+        <a href="viewFriends.php" class="view-all-link">View All </a>
 
         <div class="section-title">Join a Community</div>
         <a class="community-item" href="#">Code & Coffee</a>
@@ -129,7 +132,8 @@ $posts = getAllPosts(); // newest → oldest
         <h3>Create Post</h3>
 
         <form action="Posts.php" method="POST" enctype="multipart/form-data">
-            <textarea id="modalPostText" name="post_text" class="modal-textarea" placeholder="Write something..."></textarea>
+            <textarea id="modalPostText" name="post_text" class="modal-textarea"
+                placeholder="Write something..."></textarea>
 
             <label class="upload-label">
                 <i class="fa fa-image"></i> Upload Image

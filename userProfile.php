@@ -32,7 +32,6 @@ $stmt = $db->prepare("
         college_email,
         bio,
         profile_picture,
-        cover_picture,
         created_at
     FROM Users
     WHERE user_id = ?
@@ -42,10 +41,8 @@ $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
 // Set avatar path
 $avatar = $user['profile_picture'] ?: "assets/images/default-avatar.png";
-// Set cover path
-$cover = $user['cover_picture'] ?: "assets/images/default-cover.jpg";
-
-
+$userInterests = getInterestsForUser($userId);
+$userLanguages = getLanguagesForUser($userId);
 
 /* ====== HEADER ====== */
 include __DIR__ . "/includes/header.php";
@@ -288,14 +285,6 @@ include __DIR__ . "/includes/header.php";
 
         <!-- PROFILE CARD -->
         <div class="profile-card">
-            <div class="profile-banner"
-                style="
-                    background-image: url('<?= htmlspecialchars($cover) ?>');
-                    background-size: cover;
-                    background-position: center;
-                ">
-            </div>
-
             <div class="profile-header">
 
                 <!-- Avatar + camera -->
@@ -354,18 +343,26 @@ include __DIR__ . "/includes/header.php";
             <div class="social-row">
                 <div class="social-label">Interests:</div>
                 <div class="social-value">
-                    <span class="chip">interest</span>
-                    <span class="chip">hobby</span>
-                    <span class="chip">interest</span>
+                    <?php if (empty($userInterests)): ?>
+                        <span style="color:#999;font-style:italic;">No interests listed yet.</span>
+                    <?php else: ?>
+                        <?php foreach ($userInterests as $interest): ?>
+                            <span class="chip"><?= htmlspecialchars($interest) ?></span>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
                 </div>
             </div>
 
             <div class="social-row">
                 <div class="social-label">Languages:</div>
                 <div class="social-value">
-                    <span class="chip language">English</span>
-                    <span class="chip language">French</span>
-                    <span class="chip language">Klingon</span>
+                    <?php if (empty($userLanguages)): ?>
+                        <span style="color:#999;font-style:italic;">No languages listed yet.</span>
+                    <?php else: ?>
+                        <?php foreach ($userLanguages as $language): ?>
+                            <span class="chip language"><?= htmlspecialchars($language) ?></span>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
                 </div>
             </div>
 
