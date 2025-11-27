@@ -28,7 +28,9 @@ if (session_status() === PHP_SESSION_NONE) {
                         <li><a href="MyAlbums.php"><i class="fas fa-images"></i> My Albums</a></li>
                         <li><a href="MyPictures.php"><i class="fas fa-photo-video"></i> My Pictures</a></li>
                         <li><a href="UploadPictures.php"><i class="fas fa-cloud-upload-alt"></i> Upload Pictures</a></li>
-                        <li class="user-greeting">
+                        <li><a href="my_groups.php"><i class="fas fa-users"></i> My Groups</a></li>
+                        <li><a href="all_groups.php"><i class="fas fa-search"></i> Browse Groups</a></li>
+                        <li class="user-greeting">    
                             <span><?= htmlspecialchars($_SESSION['full_name'] ?? $_SESSION['username'] ?? 'User') ?></span>
                             <a href="Logout.php"><i class="fas fa-sign-out-alt"></i></a>
                         </li>
