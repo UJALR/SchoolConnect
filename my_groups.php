@@ -45,18 +45,24 @@ try {
             g.created_at,
             u.username as creator_name,
             u.full_name as creator_full_name,
-            COUNT(gm2.user_id) as member_count,
-            gm.member_role,
+            -- Subquery 1: Get total member count
+            (
+                SELECT COUNT(user_id) FROM GroupMembers WHERE group_id = g.group_id
+            ) as member_count,
+            -- Subquery 2: Get current user's specific role
+            (
+                SELECT member_role FROM GroupMembers WHERE group_id = g.group_id AND user_id = ?
+            ) as member_role,
+            -- Get current user's join date from GroupMembers
             gm.joined_at
         FROM UserGroups g
-        JOIN GroupMembers gm ON g.group_id = gm.group_id
+        -- JOIN to GroupMembers (gm) is necessary to filter groups for the current user
+        JOIN GroupMembers gm ON g.group_id = gm.group_id AND gm.user_id = ? 
         LEFT JOIN Users u ON g.creator_id = u.user_id
-        LEFT JOIN GroupMembers gm2 ON g.group_id = gm2.group_id
         WHERE gm.user_id = ?
-        GROUP BY g.group_id
         ORDER BY gm.joined_at DESC
     ");
-    $myGroupsStmt->execute([$userId]);
+    $myGroupsStmt->execute([$userId, $userId, $userId]);
     $myGroups = $myGroupsStmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
     $error = "Error loading your groups: " . $e->getMessage();
@@ -111,7 +117,7 @@ try {
                 
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; padding-right: 80px;">
                     <h3 style="color: var(--white); margin: 0; font-size: 1.3rem;">
-                        <a href="group_details.php?group_id=<?php echo $group['group_id']; ?>" style="color: var(--white); text-decoration: none;">
+                        <a href="groups_detail.php?group_id=<?php echo $group['group_id']; ?>" style="color: var(--white); text-decoration: none;">
                             <?php echo htmlspecialchars($group['group_name']); ?>
                         </a>
                     </h3>
@@ -139,7 +145,7 @@ try {
                     </div>
                     
                     <div style="display: flex; gap: 10px;">
-                        <a href="group_details.php?group_id=<?php echo $group['group_id']; ?>" 
+                        <a href="groups_detail.php?group_id=<?php echo $group['group_id']; ?>" 
                            class="btn" style="padding: 8px 16px; font-size: 0.9rem;">
                             View Group
                         </a>

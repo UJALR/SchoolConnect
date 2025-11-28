@@ -97,7 +97,7 @@ try {
             ">
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
                     <h3 style="color: var(--white); margin: 0; font-size: 1.3rem;">
-                        <a href="group_details.php?group_id=<?php echo $group['group_id']; ?>" style="color: var(--white); text-decoration: none;">
+                        <a href="groups_detail.php?group_id=<?php echo $group['group_id']; ?>" style="color: var(--white); text-decoration: none;">
                             <?php echo htmlspecialchars($group['group_name']); ?>
                         </a>
                     </h3>

@@ -50,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $success = "Group created successfully!";
                 
                 // Redirect to the new group
-                header("Location: group_details.php?group_id=" . $groupId);
+                header("Location: groups_detail.php?group_id=" . $groupId);
                 exit();
             }
         } catch (PDOException $e) {
