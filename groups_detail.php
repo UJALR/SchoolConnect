@@ -193,8 +193,7 @@ $posts = $postsStmt->fetchAll(PDO::FETCH_ASSOC);
                         <?php else: ?>
                             <form method="post" style="display: inline-block;">
                                 <input type="hidden" name="group_id" value="<?php echo $group['group_id']; ?>">
-                                <button type="submit" name="leave_group" class="btn btn-secondary"
-                                    onclick="return confirm('Are you sure you want to leave this group?')">
+                                <button type="submit" name="leave_group" class="btn btn-secondary">
                                     Leave Group
                                 </button>
                             </form>

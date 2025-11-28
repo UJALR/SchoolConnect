@@ -93,7 +93,9 @@ $pendingCount = getPendingFriendRequestCount($userId);
                 <div class="post-header">
                     <img src="<?= htmlspecialchars(getUserProfilePic($post['user_id'])) ?>" class="avatar-sm">
                     <div>
-                        <strong><?= htmlspecialchars(getUserName($post['user_id'])) ?></strong>
+                        <a href="friendProfile.php?user_id=<?= $post['user_id'] ?>" style="text-decoration: none; color: inherit;">
+                            <strong><?= htmlspecialchars(getUserName($post['user_id'])) ?></strong>
+                        </a>
                         <?php if (!empty($post['group_name'])): ?>
                             <span class="group-tag" style="font-size: 0.8em; color: var(--accent-color);">
                                 • Posted to <a href="groups_detail.php?group_id=<?= $post['group_id'] ?>" style="color: inherit; text-decoration: none;"><?= htmlspecialchars($post['group_name']) ?></a>
