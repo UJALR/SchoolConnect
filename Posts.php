@@ -10,7 +10,7 @@ if (session_status() == PHP_SESSION_NONE) {
 protectPage();
 $userId = getUserId();
 
-// Handle post submission from modal
+// --- POST SUBMISSION HANDLER (from modal) ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_post'])) {
     $postText = trim($_POST['post_text']);
     $mediaUrl = null;
@@ -18,8 +18,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_post'])) {
     // Handle image upload
     if (!empty($_FILES['media_file']['name'])) {
         $uploadDir = "uploads/posts/";
-        if (!is_dir($uploadDir))
+        if (!is_dir($uploadDir)) {
             mkdir($uploadDir, 0777, true);
+        }
 
         $fileTmp = $_FILES['media_file']['tmp_name'];
         $fileName = time() . "_" . basename($_FILES['media_file']['name']);
@@ -36,6 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_post'])) {
     exit;
 }
 
+// --- COMMENT SUBMISSION HANDLER (from post card) ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_comment'])) {
     $postId = (int)$_POST['post_id'];
     $commentText = trim($_POST['comment_text']);
@@ -44,12 +46,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_comment'])) {
         createComment($postId, $userId, $commentText);
     }
 
-    // Redirect to clear POST data and show the new comment
+    // Redirect to clear POST data and show the new comment, targeting the post element
     header("Location: Posts.php#post-" . $postId);
     exit;
 }
 
-$posts = getAllPosts(); // newest → oldest
+// --- DATA FETCHING ---
+// Assumes getAllPosts now accepts userId to fetch relevant posts (general + user groups)
+$posts = getAllPosts($userId); 
+$suggestedGroups = getSuggestedGroups(3);
+$pendingCount = getPendingFriendRequestCount($userId);
 ?>
 
 <?php include 'includes/header.php'; ?>
@@ -58,42 +64,43 @@ $posts = getAllPosts(); // newest → oldest
 
 <div class="feed-wrapper">
 
-    <!-- LEFT SIDEBAR -->
     <aside class="sidebar-left">
         <input type="text" class="search-box" placeholder="Search">
         <nav class="sidebar-links">
             <a href="userProfile.php">My Profile</a>
-            <?php $pendingCount = getPendingFriendRequestCount($userId); ?>
-
+            
             <a href="viewMyFriends.php" class="friends-link">
                 Friends
                 <?php if ($pendingCount > 0): ?>
                     <span class="friend-badge"><?= $pendingCount ?></span>
                 <?php endif; ?>
             </a>
-
-            <a href="#">Groups</a>
+            <a href="my_groups.php">Groups</a>
             <a href="Logout.php">Logout</a>
         </nav>
     </aside>
 
-    <!-- MAIN FEED -->
     <div class="feed-main">
 
-        <!-- POST INPUT BAR -->
         <div class="create-post-bar">
             <img src="assets/images/default-avatar.png" class="avatar-sm">
             <input id="mainPostInput" type="text" placeholder="What's happening today?" class="post-input">
             <button id="openPostModal" class="post-btn">POST</button>
         </div>
 
-        <!-- FEED POSTS -->
         <?php foreach ($posts as $post): ?>
             <div class="post-card" id="post-<?= $post['post_id'] ?>">
                 <div class="post-header">
                     <img src="<?= htmlspecialchars(getUserProfilePic($post['user_id'])) ?>" class="avatar-sm">
                     <div>
-                        <strong><?= htmlspecialchars(getUserName($post['user_id'])) ?></strong><br>
+                        <a href="friendProfile.php?user_id=<?= $post['user_id'] ?>" style="text-decoration: none; color: inherit;">
+                            <strong><?= htmlspecialchars(getUserName($post['user_id'])) ?></strong>
+                        </a>
+                        <?php if (!empty($post['group_name'])): ?>
+                            <span class="group-tag" style="font-size: 0.8em; color: var(--accent-color);">
+                                • Posted to <a href="groups_detail.php?group_id=<?= $post['group_id'] ?>" style="color: inherit; text-decoration: none;"><?= htmlspecialchars($post['group_name']) ?></a>
+                            </span>
+                        <?php endif; ?><br>
                         <span class="post-date"><?= date("M j, Y H:i", strtotime($post['created_at'])) ?></span>
                     </div>
                 </div>
@@ -128,6 +135,7 @@ $posts = getAllPosts(); // newest → oldest
 
                     <div class="comments-list">
                         <?php 
+                        // You must ensure this function exists in includes/functions.php
                         $comments = getCommentsForPost($post['post_id']); 
                         foreach ($comments as $comment): 
                             $commentAvatar = $comment['profile_picture'] ?: 'assets/images/default-avatar.png';
@@ -141,18 +149,18 @@ $posts = getAllPosts(); // newest → oldest
                                         </a>
                                     </span>
                                     <span class="comment-text-content"><?= htmlspecialchars($comment['comment_text']) ?></span>
-                                    </div>
+                                </div>
                             </div>
                         <?php endforeach; ?>
                     </div>
                 </div>
-                            </div>
+            </div>
         <?php endforeach; ?>
 
     </div>
 
-    <!-- RIGHT SIDEBAR -->
     <aside class="sidebar-right">
+        
         <div class="section-title">Potential Buddies</div>
         <?php foreach (getSuggestedFriends($userId) as $fr): ?>
             <a href="friendProfile.php?user_id=<?= $fr['user_id'] ?>" class="buddy-item"
@@ -162,18 +170,28 @@ $posts = getAllPosts(); // newest → oldest
                 <span><?= htmlspecialchars($fr['full_name']) ?></span>
             </a>
         <?php endforeach; ?>
-        <a href="viewFriends.php" class="view-all-link">View All </a>
+        <a href="viewFriends.php" class="view-all-link">View All Friends &raquo;</a>
 
-        <div class="section-title">Join a Community</div>
-        <a class="community-item" href="#">Code & Coffee</a>
-        <a class="community-item" href="#">Green Campus</a>
-        <a class="community-item" href="#">Study Sprint</a>
+        <div class="section-title" style="margin-top: 20px;">Join a Community</div>
+        <?php if (empty($suggestedGroups)): ?>
+            <p style="color: rgba(255, 255, 255, 0.6); padding: 5px 0;">No groups to suggest yet.</p>
+        <?php else: ?>
+            <?php foreach ($suggestedGroups as $group): ?>
+                <a class="community-item" href="groups_detail.php?group_id=<?= $group['group_id'] ?>">
+                    <?= htmlspecialchars($group['group_name']) ?>
+                </a>
+            <?php endforeach; ?>
+            <a href="all_groups.php" 
+               style="display: block; text-align: center; margin-top: 10px; padding: 5px 0; 
+                      color: var(--accent-color); font-size: 0.9em; text-decoration: none;">
+                View All Groups &raquo;
+            </a>
+        <?php endif; ?>
     </aside>
 
 </div>
 
 
-<!-- MODAL FOR CREATING POST -->
 <div id="modalBackdrop" class="modal-backdrop"></div>
 
 <div id="postModal" class="modal">
@@ -183,8 +201,7 @@ $posts = getAllPosts(); // newest → oldest
         <h3>Create Post</h3>
 
         <form action="Posts.php" method="POST" enctype="multipart/form-data">
-            <textarea id="modalPostText" name="post_text" class="modal-textarea"
-                placeholder="Write something..."></textarea>
+            <textarea id="modalPostText" name="post_text" class="modal-textarea" placeholder="Write something..."></textarea>
 
             <label class="upload-label">
                 <i class="fa fa-image"></i> Upload Image

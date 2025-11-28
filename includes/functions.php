@@ -16,59 +16,12 @@ function getUserProfilePic($userId) {
     return $stmt->fetchColumn() ?: "assets/images/default-avatar.png";
 }
 
-// -------------------- POSTS --------------------
-function createPost($userId, $text, $mediaUrl = null) {
-    $db = Database::getInstance()->getConnection();
-    $stmt = $db->prepare("
-        INSERT INTO Posts (user_id, post_text, media_url)
-        VALUES (?, ?, ?)
-    ");
-    $stmt->execute([$userId, $text, $mediaUrl]);
-}
-
-function getAllPosts() {
-    $db = Database::getInstance()->getConnection();
-    $query = "
-        SELECT post_id, user_id, post_text, media_url, created_at
-        FROM Posts
-        ORDER BY created_at DESC
-    ";
-    return $db->query($query)->fetchAll(PDO::FETCH_ASSOC);
-}
-
-function getPostsByUserId($userId) {
-    $db = Database::getInstance()->getConnection();
-    $stmt = $db->prepare("
-        SELECT post_id, user_id, post_text, media_url, created_at
-        FROM Posts
-        WHERE user_id = ?
-        ORDER BY created_at DESC
-    ");
-    $stmt->execute([$userId]);
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
-
-// -------------------- FRIENDS SUGGESTIONS --------------------
-function getSuggestedFriends($userId) {
-    $db = Database::getInstance()->getConnection();
-    $stmt = $db->prepare("
-        SELECT user_id, full_name, profile_picture
-        FROM Users
-        WHERE user_id != ?
-        ORDER BY RAND()
-        LIMIT 3
-    ");
-    $stmt->execute([$userId]);
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
-
-// update Avatar for the userProfile.php
-
 function updateUserAvatar($file, $userId) {
     if (empty($file['name'])) {
         return false;
     }
 
+    // Set target directory relative to the project root
     $targetDir = __DIR__ . "/../uploads/";
 
     if (!is_dir($targetDir)) {
@@ -91,12 +44,143 @@ function updateUserAvatar($file, $userId) {
     return true;
 }
 
+// -------------------- POSTS --------------------
+function createPost($userId, $text, $mediaUrl = null) {
+    $db = Database::getInstance()->getConnection();
+    $stmt = $db->prepare("
+        INSERT INTO Posts (user_id, post_text, media_url)
+        VALUES (?, ?, ?)
+    ");
+    $stmt->execute([$userId, $text, $mediaUrl]);
+}
 
-//this is for the viewFriends.php
+function getAllPosts($userId) {
+    $db = Database::getInstance();
+    $pdo = $db->getConnection();
+
+    // 1. Get a list of group_ids the user is a member of
+    $groupsStmt = $pdo->prepare("SELECT group_id FROM GroupMembers WHERE user_id = ?");
+    $groupsStmt->execute([$userId]);
+    $groupIds = $groupsStmt->fetchAll(PDO::FETCH_COLUMN);
+
+    // 2. Initialize SQL and parameters for the main query
+    $sql = "
+        SELECT 
+            p.*, 
+            u.username, 
+            u.full_name, 
+            u.profile_picture,
+            CASE WHEN p.group_id IS NOT NULL THEN 'Group Post' ELSE 'General Post' END as post_type,
+            ug.group_name
+        FROM Posts p
+        JOIN Users u ON p.user_id = u.user_id
+        LEFT JOIN UserGroups ug ON p.group_id = ug.group_id
+        WHERE p.group_id IS NULL "; // Start with general posts only
+    
+    $params = [];
+    
+    // 3. Conditionally add the GROUP posts logic if the user is in groups
+    if (!empty($groupIds)) {
+        // Create placeholder string: (?), (?), ... (Number of groups - 1 repeats)
+        $inPlaceholders = '?' . str_repeat(',?', count($groupIds) - 1);
+        
+        $sql .= "
+        OR p.group_id IN ({$inPlaceholders})
+        ";
+        
+        // Add the group IDs to the parameters
+        $params = $groupIds;
+    }
+
+    // 4. Finalize the query
+    $sql .= "
+        ORDER BY p.created_at DESC
+        LIMIT 50
+    ";
+    
+    // 5. Execute the statement
+    $postsStmt = $pdo->prepare($sql);
+    // Note: If $groupIds is empty, $params is empty, executing only the WHERE p.group_id IS NULL part.
+    $postsStmt->execute($params);
+
+    return $postsStmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+function getPostsByUserId($userId) {
+    $db = Database::getInstance()->getConnection();
+    $stmt = $db->prepare("
+        SELECT post_id, user_id, post_text, media_url, created_at
+        FROM Posts
+        WHERE user_id = ?
+        ORDER BY created_at DESC
+    ");
+    $stmt->execute([$userId]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+// -------------------- COMMENTS --------------------
+
+/**
+ * @param int $postId The ID of the post being commented on.
+ * @param int $userId The ID of the user submitting the comment.
+ * @param string $commentText The content of the comment.
+ * @return bool True on success, false on failure.
+ */
+function createComment($postId, $userId, $commentText) {
+    $db = Database::getInstance()->getConnection();
+    $stmt = $db->prepare("
+        INSERT INTO UserComments (post_id, user_id, comment_text)
+        VALUES (?, ?, ?)
+    ");
+    return $stmt->execute([$postId, $userId, $commentText]);
+}
+
+/**
+ * Retrieves all comments for a specific post, ordered by creation time.
+ * Includes user information for display.
+ * @param int $postId The ID of the post.
+ * @return array Array of comments.
+ */
+function getCommentsForPost($postId) {
+    $db = Database::getInstance()->getConnection();
+    $stmt = $db->prepare("
+        SELECT 
+            c.comment_id, 
+            c.user_id, 
+            c.comment_text, 
+            c.created_at, 
+            u.full_name, 
+            u.profile_picture
+        FROM UserComments c
+        JOIN Users u ON c.user_id = u.user_id
+        WHERE c.post_id = ?
+        ORDER BY c.created_at ASC
+    ");
+    $stmt->execute([$postId]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+
+// -------------------- FRIENDS --------------------
+
+function getSuggestedFriends($userId) {
+    $db = Database::getInstance()->getConnection();
+    // This query is basic and does not exclude existing friends/pending requests.
+    $stmt = $db->prepare("
+        SELECT user_id, full_name, profile_picture
+        FROM Users
+        WHERE user_id != ?
+        ORDER BY RAND()
+        LIMIT 3
+    ");
+    $stmt->execute([$userId]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
 function sendFriendRequest($senderId, $receiverId) {
-
     $db = Database::getInstance()->getConnection();
 
+    // Check if a relationship already exists (pending or accepted)
     $sql = "
         SELECT connection_id 
         FROM userfriends
@@ -124,8 +208,8 @@ function sendFriendRequest($senderId, $receiverId) {
         ]);
     }
 }
-function getFriendshipStatus($userId, $otherUserId) {
 
+function getFriendshipStatus($userId, $otherUserId) {
     $db = Database::getInstance()->getConnection();
 
     $sql = "
@@ -150,6 +234,7 @@ function getFriendshipStatus($userId, $otherUserId) {
 function cancelFriendRequest($senderId, $receiverId) {
     $db = Database::getInstance()->getConnection();
 
+    // Only allow deletion of requests sent by $senderId to $receiverId
     $stmt = $db->prepare("
         DELETE FROM userfriends
         WHERE user_id_sender = :sender
@@ -162,9 +247,11 @@ function cancelFriendRequest($senderId, $receiverId) {
         ':receiver' => $receiverId
     ]);
 }
+
 function unfriendUser($userId, $otherId) {
     $db = Database::getInstance()->getConnection();
 
+    // Delete the accepted friendship regardless of sender/receiver column order
     $stmt = $db->prepare("
         DELETE FROM userfriends
         WHERE 
@@ -181,11 +268,8 @@ function unfriendUser($userId, $otherId) {
     ]);
 }
 
-
-
-// Get all friends + requests for one user (used on userProfile.php)
+// Get all friends + requests for one user (used on viewMyFriends.php)
 function getUserFriendsAndRequests($userId) {
-
     $db = Database::getInstance()->getConnection();
 
     $sql = "
@@ -240,8 +324,7 @@ function acceptFriendRequest($senderId, $receiverId) {
     ]);
 }
 
-
-//this func is for the popUp for frnd req
+// Get count of pending friend requests (for badge/notification)
 function getPendingFriendRequestCount($userId) {
     $db = Database::getInstance()->getConnection();
 
@@ -255,6 +338,28 @@ function getPendingFriendRequestCount($userId) {
 
     return (int)$stmt->fetchColumn();
 }
+
+
+// -------------------- GROUPS --------------------
+function getSuggestedGroups($limit = 3) {
+    $db = Database::getInstance();
+    $pdo = $db->getConnection();
+    
+    $stmt = $pdo->prepare("
+        SELECT 
+            group_id, 
+            group_name
+        FROM UserGroups 
+        ORDER BY RAND() 
+        LIMIT ?
+    ");
+    
+    $stmt->bindValue(1, $limit, PDO::PARAM_INT);
+    $stmt->execute();
+    
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
 
 // -------------------- INTERESTS & LANGUAGES --------------------
 function getInterestsForUser($userId) {
@@ -345,43 +450,4 @@ function updateInterestsAndLanguages($userId, $interests, $languages) {
     }
 
     return true;
-}
-/**
- * @param int $postId The ID of the post being commented on.
- * @param int $userId The ID of the user submitting the comment.
- * @param string $commentText The content of the comment.
- * @return bool True on success, false on failure.
- */
-function createComment($postId, $userId, $commentText) {
-    $db = Database::getInstance()->getConnection();
-    $stmt = $db->prepare("
-        INSERT INTO UserComments (post_id, user_id, comment_text)
-        VALUES (?, ?, ?)
-    ");
-    return $stmt->execute([$postId, $userId, $commentText]);
-}
-
-/**
- * Retrieves all comments for a specific post, ordered by creation time.
- * Includes user information for display.
- * @param int $postId The ID of the post.
- * @return array Array of comments.
- */
-function getCommentsForPost($postId) {
-    $db = Database::getInstance()->getConnection();
-    $stmt = $db->prepare("
-        SELECT 
-            c.comment_id, 
-            c.user_id, 
-            c.comment_text, 
-            c.created_at, 
-            u.full_name, 
-            u.profile_picture
-        FROM UserComments c
-        JOIN Users u ON c.user_id = u.user_id
-        WHERE c.post_id = ?
-        ORDER BY c.created_at ASC
-    ");
-    $stmt->execute([$postId]);
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
