@@ -49,4 +49,3 @@ function checkFriendship($userId1, $userId2) {
     
     return $result ? $result['status'] : false;
 }
-?>
