@@ -9,7 +9,7 @@ function isLoggedIn() {
     return isset($_SESSION['user_id']);
 }
 
-function protectPage($redirect = 'Login.php') {
+function protectPage($redirect = 'index.php') {
     if (!isLoggedIn()) {
         $_SESSION['redirect_url'] = $_SERVER['REQUEST_URI'];
         header("Location: $redirect");
