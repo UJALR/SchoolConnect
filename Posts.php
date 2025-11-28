@@ -64,21 +64,7 @@ $pendingCount = getPendingFriendRequestCount($userId);
 
 <div class="feed-wrapper">
 
-    <aside class="sidebar-left">
-        <input type="text" class="search-box" placeholder="Search">
-        <nav class="sidebar-links">
-            <a href="userProfile.php">My Profile</a>
-            
-            <a href="viewMyFriends.php" class="friends-link">
-                Friends
-                <?php if ($pendingCount > 0): ?>
-                    <span class="friend-badge"><?= $pendingCount ?></span>
-                <?php endif; ?>
-            </a>
-            <a href="my_groups.php">Groups</a>
-            <a href="Logout.php">Logout</a>
-        </nav>
-    </aside>
+    <?php include 'includes/left_panel_partial.php'; ?>
 
     <div class="feed-main">
 
@@ -159,35 +145,7 @@ $pendingCount = getPendingFriendRequestCount($userId);
 
     </div>
 
-    <aside class="sidebar-right">
-        
-        <div class="section-title">Potential Buddies</div>
-        <?php foreach (getSuggestedFriends($userId) as $fr): ?>
-            <a href="friendProfile.php?user_id=<?= $fr['user_id'] ?>" class="buddy-item"
-                style="text-decoration:none;color:inherit;">
-                <img src="<?= htmlspecialchars($fr['profile_picture'] ?: 'assets/images/default-avatar.png') ?>"
-                    class="avatar-xs">
-                <span><?= htmlspecialchars($fr['full_name']) ?></span>
-            </a>
-        <?php endforeach; ?>
-        <a href="viewFriends.php" class="view-all-link">View All Friends &raquo;</a>
-
-        <div class="section-title" style="margin-top: 20px;">Join a Community</div>
-        <?php if (empty($suggestedGroups)): ?>
-            <p style="color: rgba(255, 255, 255, 0.6); padding: 5px 0;">No groups to suggest yet.</p>
-        <?php else: ?>
-            <?php foreach ($suggestedGroups as $group): ?>
-                <a class="community-item" href="groups_detail.php?group_id=<?= $group['group_id'] ?>">
-                    <?= htmlspecialchars($group['group_name']) ?>
-                </a>
-            <?php endforeach; ?>
-            <a href="all_groups.php" 
-               style="display: block; text-align: center; margin-top: 10px; padding: 5px 0; 
-                      color: var(--accent-color); font-size: 0.9em; text-decoration: none;">
-                View All Groups &raquo;
-            </a>
-        <?php endif; ?>
-    </aside>
+    <?php include 'includes/right_panel_partial.php'; ?>
 
 </div>
 

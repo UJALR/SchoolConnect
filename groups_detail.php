@@ -1,6 +1,7 @@
 <?php
 require_once 'includes/database.php';
 require_once 'includes/auth.php';
+require_once 'includes/functions.php';
 
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
@@ -48,6 +49,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['leave_group'])) {
             $error = "Failed to leave group. Please try again.";
         }
     }
+}
+
+// Handle comment submission for group posts
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_comment'])) {
+    $postId = isset($_POST['post_id']) ? (int)$_POST['post_id'] : 0;
+    $commentText = trim($_POST['comment_text'] ?? '');
+
+    if ($postId > 0 && $groupId > 0 && $commentText !== '') {
+        // verify membership
+        $checkMember = $pdo->prepare("SELECT 1 FROM GroupMembers WHERE group_id = ? AND user_id = ?");
+        $checkMember->execute([$groupId, $userId]);
+        if ($checkMember->fetch()) {
+            createComment($postId, $userId, $commentText);
+        }
+    }
+
+    header("Location: groups_detail.php?group_id={$groupId}#post-" . $postId);
+    exit;
 }
 
 // Get group details
@@ -106,8 +125,14 @@ $posts = $postsStmt->fetchAll(PDO::FETCH_ASSOC);
 
 <?php include 'includes/header.php'; ?>
 
-<div class="content-container">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+<link rel="stylesheet" href="assets/css/feed.css">
+
+<div class="feed-wrapper">
+    <?php include 'includes/left_panel_partial.php'; ?>
+
+    <div class="feed-main">
+        <div class="content-container">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
         <div>
             <h1><?php echo htmlspecialchars($group['group_name']); ?></h1>
             <p style="color: rgba(255, 255, 255, 0.8); margin: 0;">
@@ -128,7 +153,7 @@ $posts = $postsStmt->fetchAll(PDO::FETCH_ASSOC);
         </div>
     </div>
 
-    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 30px;">
+    <div style="display: grid; grid-template-columns: 1fr; gap: 30px;">
         <!-- Left Column - Posts -->
         <div>
             <h2>Group Posts</h2>
@@ -148,7 +173,7 @@ $posts = $postsStmt->fetchAll(PDO::FETCH_ASSOC);
 
             <!-- Group Posts -->
             <?php foreach ($posts as $post): ?>
-                <div style="background: rgba(255, 255, 255, 0.1); padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                <div id="post-<?php echo $post['post_id']; ?>" style="background: rgba(255, 255, 255, 0.1); padding: 15px; border-radius: 8px; margin-bottom: 15px;">
                     <div style="display: flex; align-items: center; margin-bottom: 10px;">
                         <img src="<?php echo htmlspecialchars($post['profile_picture'] ?: 'assets/images/default-avatar.png'); ?>"
                             style="width: 40px; height: 40px; border-radius: 50%; margin-right: 10px;">
@@ -162,6 +187,31 @@ $posts = $postsStmt->fetchAll(PDO::FETCH_ASSOC);
                     <p style="color: rgba(255, 255, 255, 0.9); margin: 0; line-height: 1.5;">
                         <?php echo nl2br(htmlspecialchars($post['post_text'])); ?>
                     </p>
+                    <!-- Comments -->
+                    <div class="comment-section" style="margin-top:12px;">
+                        <?php if ($group['is_member']): ?>
+                            <form action="groups_detail.php?group_id=<?php echo $groupId; ?>" method="POST" class="comment-form" id="comment-form-<?php echo $post['post_id']; ?>">
+                                <input type="hidden" name="post_id" value="<?php echo $post['post_id']; ?>">
+                                <input type="text" name="comment_text" id="comment-input-<?php echo $post['post_id']; ?>" class="comment-input-field" placeholder="Add a comment..." required>
+                                <button type="submit" name="submit_comment" class="comment-btn"><i class="fa fa-comment"></i></button>
+                            </form>
+                        <?php endif; ?>
+
+                        <div class="comments-list" style="margin-top:10px;">
+                            <?php $comments = getCommentsForPost($post['post_id']);
+                            foreach ($comments as $comment):
+                                $commentAvatar = $comment['profile_picture'] ?: 'assets/images/default-avatar.png';
+                            ?>
+                                <div class="comment-item" style="display:flex; gap:10px; align-items:flex-start; margin-bottom:8px;">
+                                    <img src="<?= htmlspecialchars($commentAvatar) ?>" class="avatar-xs">
+                                    <div class="comment-content">
+                                        <span class="comment-author"><a href="friendProfile.php?user_id=<?= $comment['user_id'] ?>"><?= htmlspecialchars($comment['full_name']) ?></a></span>
+                                        <div class="comment-text-content"><?= nl2br(htmlspecialchars($comment['comment_text'])) ?></div>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
                 </div>
             <?php endforeach; ?>
 
@@ -177,77 +227,12 @@ $posts = $postsStmt->fetchAll(PDO::FETCH_ASSOC);
             <?php endif; ?>
         </div>
 
-        <!-- Right Column - Group Info -->
-        <div>
-            <!-- Group Statistics -->
-            <?php if (isset($error)): ?>
-                <div class="error" style="color: red; margin-bottom: 10px;"><?php echo htmlspecialchars($error); ?></div>
-            <?php endif; ?>
-
-            <div style="background: rgba(255, 255, 255, 0.1); padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-
-                <div style="margin-bottom: 15px;">
-                    <?php if ($group['is_member']): ?>
-                        <?php if ($group['creator_id'] == $userId): ?>
-                            <button class="btn btn-secondary" disabled>Creator (Cannot Leave)</button>
-                        <?php else: ?>
-                            <form method="post" style="display: inline-block;">
-                                <input type="hidden" name="group_id" value="<?php echo $group['group_id']; ?>">
-                                <button type="submit" name="leave_group" class="btn btn-secondary">
-                                    Leave Group
-                                </button>
-                            </form>
-                        <?php endif; ?>
-                    <?php else: ?>
-                        <?php if (!$group['is_private']): ?>
-                            <form method="post" style="display: inline-block;">
-                                <input type="hidden" name="group_id" value="<?php echo $group['group_id']; ?>">
-                                <button type="submit" name="join_group" class="btn">
-                                    Join Group
-                                </button>
-                            </form>
-                        <?php else: ?>
-                            <span style="color: var(--warning-color); font-weight: 600;">Private (Request Required)</span>
-                        <?php endif; ?>
-                    <?php endif; ?>
-                </div>
-                <h3>Group Info</h3>
-                <div style="color: rgba(255, 255, 255, 0.9);">
-                    <p><strong>Creator:</strong> <?php echo htmlspecialchars($group['creator_name']); ?></p>
-                    <p><strong>Members:</strong> <?php echo $group['member_count']; ?></p>
-                    <p><strong>Created:</strong> <?php echo date('M j, Y', strtotime($group['created_at'])); ?></p>
-                    <?php if ($group['is_member']): ?>
-                        <p><strong>Your Role:</strong> <span
-                                style="color: var(--accent-color);"><?php echo ucfirst($group['member_role']); ?></span></p>
-                    <?php endif; ?>
-                </div>
-            </div>
-
-            <!-- Group Members -->
-            <div style="background: rgba(255, 255, 255, 0.1); padding: 20px; border-radius: 8px;">
-                <h3>Members (<?php echo count($members); ?>)</h3>
-                <div style="max-height: 300px; overflow-y: auto;">
-                    <?php foreach ($members as $member): ?>
-                        <div
-                            style="display: flex; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
-                            <img src="<?php echo htmlspecialchars($member['profile_picture'] ?: 'assets/images/default-avatar.png'); ?>"
-                                style="width: 35px; height: 35px; border-radius: 50%; margin-right: 10px;">
-                            <div style="flex: 1;">
-                                <div style="color: var(--white); font-weight: 600;">
-                                    <?php echo htmlspecialchars($member['full_name']); ?></div>
-                                <div style="color: rgba(255, 255, 255, 0.6); font-size: 0.8rem;">
-                                    @<?php echo htmlspecialchars($member['username']); ?>
-                                    <?php if ($member['member_role'] === 'admin'): ?>
-                                        <span style="color: var(--accent-color); margin-left: 5px;">• Admin</span>
-                                    <?php endif; ?>
-                                </div>
-                            </div>
-                        </div>
-                    <?php endforeach; ?>
-                </div>
-            </div>
         </div>
     </div>
+    </div>
+
+    <?php include 'includes/right_panel_partial.php'; ?>
+
 </div>
 
 <?php include 'includes/footer.php'; ?>

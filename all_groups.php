@@ -70,8 +70,13 @@ try {
 
 <?php include 'includes/header.php'; ?>
 
-<div class="content-container">
-    <div class="page-header">
+<link rel="stylesheet" href="assets/css/feed.css">
+
+<div class="feed-wrapper">
+    <?php include 'includes/left_panel_partial.php'; ?>
+
+    <div class="feed-main">
+        <div class="page-header">
         <h1>Browse All Groups</h1>
         <p>Discover and join groups that match your interests</p>
         <a href="my_groups.php" class="btn btn-secondary">View My Groups</a>
@@ -154,6 +159,8 @@ try {
             </div>
         <?php endif; ?>
     </div>
+    </div>
+    <?php include 'includes/right_panel_partial.php'; ?>
 </div>
 
 <?php include 'includes/footer.php'; ?>

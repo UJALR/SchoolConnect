@@ -62,8 +62,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <?php include 'includes/header.php'; ?>
 
-<div class="content-container">
-    <div class="auth-container">
+<link rel="stylesheet" href="assets/css/feed.css">
+
+<div class="feed-wrapper">
+    <?php include 'includes/left_panel_partial.php'; ?>
+
+    <div class="feed-main">
+        <div class="content-container">
+            <div class="auth-container">
         <h1>Create New Group</h1>
         
         <?php if (!empty($error)): ?>
@@ -103,7 +109,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <a href="my_groups.php" class="btn btn-secondary">Cancel</a>
             </div>
         </form>
+            </div>
+        </div>
     </div>
+    <?php include 'includes/right_panel_partial.php'; ?>
 </div>
 
 <?php include 'includes/footer.php'; ?>

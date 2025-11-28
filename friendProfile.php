@@ -268,22 +268,7 @@ include __DIR__ . "/includes/header.php";
 
 <div class="feed-wrapper">
 
-    <aside class="sidebar-left">
-        <input type="text" class="search-box" placeholder="Search">
-        <nav class="sidebar-links">
-            <a href="userProfile.php">My Profile</a>
-            <?php $pendingCount = getPendingFriendRequestCount($userId); ?>
-
-            <a href="viewMyFriends.php" class="friends-link">
-                Friends
-                <?php if ($pendingCount > 0): ?>
-                    <span class="friend-badge"><?= $pendingCount ?></span>
-                <?php endif; ?>
-            </a>
-            <a href="groups.php">Groups</a>
-            <a href="Logout.php">Logout</a>
-        </nav>
-    </aside>
+    <?php include 'includes/left_panel_partial.php'; ?>
 
     <div class="feed-main">
 
@@ -426,24 +411,7 @@ include __DIR__ . "/includes/header.php";
 
     </div>
 
-    <aside class="sidebar-right">
-        <div class="section-title">Potential Buddies</div>
-        <?php foreach (getSuggestedFriends($userId) as $fr): ?>
-            <a href="friendProfile.php?user_id=<?= $fr['user_id'] ?>" class="buddy-item"
-                style="text-decoration:none;color:inherit;">
-                <img src="<?= htmlspecialchars($fr['profile_picture'] ?: 'assets/images/default-avatar.png') ?>"
-                    class="avatar-xs">
-                <span><?= htmlspecialchars($fr['full_name']) ?></span>
-            </a>
-        <?php endforeach; ?>
-
-        <a href="viewFriends.php" class="view-all-link">View All</a>
-
-        <div class="section-title">Join a Community</div>
-        <a class="community-item" href="#">Code & Coffee</a>
-        <a class="community-item" href="#">Green Campus</a>
-        <a class="community-item" href="#">Study Sprint</a>
-    </aside>
+    <?php include 'includes/right_panel_partial.php'; ?>
 
 </div>
 

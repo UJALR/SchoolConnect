@@ -72,8 +72,13 @@ try {
 
 <?php include 'includes/header.php'; ?>
 
-<div class="content-container">
-    <div class="page-header">
+<link rel="stylesheet" href="assets/css/feed.css">
+
+<div class="feed-wrapper">
+    <?php include 'includes/left_panel_partial.php'; ?>
+
+    <div class="feed-main">
+        <div class="page-header">
         <h1>My Groups</h1>
         <p>Groups you are currently a member of</p>
         <div style="display: flex; gap: 10px; margin-top: 10px;">
@@ -139,23 +144,17 @@ try {
                 
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                     <div style="color: rgba(255, 255, 255, 0.8); font-size: 0.9rem;">
-                        <div><strong>Created by:</strong> <?php echo htmlspecialchars($group['creator_full_name']); ?></div>
+                        <div><strong>Creator:</strong> <a href="friendProfile.php?user_id=<?php echo $group['creator_id']; ?>" style="color: inherit; text-decoration: none;"><?php echo htmlspecialchars($group['creator_full_name']); ?></a></div>
                         <div><strong>Members:</strong> <?php echo $group['member_count']; ?></div>
                         <div><strong>Joined:</strong> <?php echo date('M j, Y', strtotime($group['joined_at'])); ?></div>
                     </div>
                     
                     <div style="display: flex; gap: 10px;">
-                        <a href="groups_detail.php?group_id=<?php echo $group['group_id']; ?>" 
-                           class="btn" style="padding: 8px 16px; font-size: 0.9rem;">
-                            View Group
-                        </a>
-                        
                         <?php if ($group['member_role'] !== 'admin' || $group['creator_id'] != $userId): ?>
                             <form method="post" style="margin: 0;">
                                 <input type="hidden" name="group_id" value="<?php echo $group['group_id']; ?>">
                                 <button type="submit" name="leave_group" class="btn btn-secondary" 
-                                        style="padding: 8px 16px; font-size: 0.9rem;"
-                                        onclick="return confirm('Are you sure you want to leave this group?')">
+                                        style="padding: 8px 16px; font-size: 0.9rem;">
                                     Leave
                                 </button>
                             </form>
@@ -177,6 +176,8 @@ try {
             </div>
         <?php endif; ?>
     </div>
+    </div>
+    <?php include 'includes/right_panel_partial.php'; ?>
 </div>
 
 <?php include 'includes/footer.php'; ?>
