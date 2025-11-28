@@ -1,5 +1,5 @@
 <?php
-require_once 'includes/database.php';
+require_once './includes/database.php';
 require_once 'includes/auth.php';
 
 if (session_status() == PHP_SESSION_NONE)
