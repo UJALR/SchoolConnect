@@ -48,7 +48,7 @@ $people = $stmt->fetchAll(PDO::FETCH_ASSOC);
 include 'includes/header.php';
 ?>
 
-<link rel="stylesheet" href="assets/css/feed.css">
+<!-- <link rel="stylesheet" href="assets/css/feed.css">
 
 <style>
 .feed-wrapper {
@@ -94,7 +94,7 @@ include 'includes/header.php';
 .gray-btn {
     background: gray;
 }
-</style>
+</style> -->
 
 <div class="feed-wrapper">
 
@@ -106,19 +106,18 @@ include 'includes/header.php';
         <h1 class="page-title">People You May Know</h1>
 
         <?php if (empty($people)): ?>
-            <p style="color:#e5e7eb;">No users to suggest.</p>
+            <p>No users to suggest.</p>
         <?php else: ?>
             <?php foreach ($people as $person): ?>
                 <?php $statusData = getFriendshipStatus($userId, $person['user_id']); ?>
 
                 <div class="buddy-item" data-name="<?= strtolower(htmlspecialchars($person['full_name'])) ?>">
-                    <a href="friendProfile.php?user_id=<?= $person['user_id'] ?>" class="buddy-info"
-                        style="display: flex; gap: 12px; align-items: center;">
+                    <a href="friendProfile.php?user_id=<?= $person['user_id'] ?>" class="buddy-info">
                         <img src="<?= htmlspecialchars($person['profile_picture'] ?: 'assets/images/default-avatar.png') ?>"
                             class="avatar-xs">
                         <div>
-                            <strong style="color: white;"><?= htmlspecialchars($person['full_name']) ?></strong><br>
-                            <small style="color: #ccc;">@<?= htmlspecialchars($person['username']) ?></small>
+                            <span class="buddy-name"><?= htmlspecialchars($person['full_name']) ?></span>
+                            <span class="buddy-id">@<?= htmlspecialchars($person['username']) ?></span>
                         </div>
                     </a>
 
@@ -134,27 +133,21 @@ include 'includes/header.php';
                             <!-- YOU sent the request -->
                             <form method="POST">
                                 <input type="hidden" name="receiver_id" value="<?= $person['user_id'] ?>">
-                                <button type="submit" name="cancel_request" class="add-btn gray-btn">
-                                    Cancel Request
-                                </button>
+                                <button type="submit" name="cancel_request" class="btn-gray">Cancel Request</button>
                             </form>
 
                         <?php elseif ($statusData['status'] === 'pending' && $statusData['user_id_sender'] != $userId): ?>
                             <!-- THEY sent the request -->
                             <form method="POST">
                                 <input type="hidden" name="receiver_id" value="<?= $person['user_id'] ?>">
-                                <button type="submit" name="accept_request" class="add-btn" style="background:#22c55e;">
-                                    Accept
-                                </button>
+                                <button type="submit" name="accept_request" class="btn-primary">Accept</button>
                             </form>
 
                         <?php elseif ($statusData['status'] === 'accepted'): ?>
                             <!-- Already friends -->
                             <form method="POST">
                                 <input type="hidden" name="receiver_id" value="<?= $person['user_id'] ?>">
-                                <button type="submit" name="unfriend" class="add-btn gray-btn">
-                                    Unfriend
-                                </button>
+                                <button type="submit" name="unfriend" class="btn-warning">Unfriend</button>
                             </form>
                         <?php endif; ?>
                     </div>

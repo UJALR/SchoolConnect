@@ -60,7 +60,7 @@ $pendingCount = getPendingFriendRequestCount($userId);
 
 <?php include 'includes/header.php'; ?>
 
-<link rel="stylesheet" href="assets/css/feed.css">
+<!-- <link rel="stylesheet" href="assets/css/feed.css"> -->
 
 <div class="feed-wrapper">
 
@@ -79,14 +79,14 @@ $pendingCount = getPendingFriendRequestCount($userId);
                 <div class="post-header">
                     <img src="<?= htmlspecialchars(getUserProfilePic($post['user_id'])) ?>" class="avatar-sm">
                     <div>
-                        <a href="friendProfile.php?user_id=<?= $post['user_id'] ?>" style="text-decoration: none; color: inherit;">
-                            <strong><?= htmlspecialchars(getUserName($post['user_id'])) ?></strong>
+                        <a href="friendProfile.php?user_id=<?= $post['user_id'] ?>">
+                            <?= htmlspecialchars(getUserName($post['user_id'])) ?>
                         </a>
                         <?php if (!empty($post['group_name'])): ?>
-                            <span class="group-tag" style="font-size: 0.8em; color: var(--accent-color);">
+                            <span class="group-tag">
                                 • Posted to <a href="groups_detail.php?group_id=<?= $post['group_id'] ?>" style="color: inherit; text-decoration: none;"><?= htmlspecialchars($post['group_name']) ?></a>
                             </span>
-                        <?php endif; ?><br>
+                        <?php endif; ?>
                         <span class="post-date"><?= date("M j, Y H:i", strtotime($post['created_at'])) ?></span>
                     </div>
                 </div>

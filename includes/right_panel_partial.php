@@ -34,13 +34,13 @@ if (!isset($suggestedGroups)) {
     <?php endforeach; ?>
     <a href="viewFriends.php" class="view-all-link">View All Friends &raquo;</a>
 
-    <div class="section-title" style="margin-top: 20px;">Join a Community</div>
+    <div class="section-title">Join a Community</div>
     <?php if (empty($suggestedGroups)): ?>
         <p style="color: rgba(255, 255, 255, 0.6); padding: 5px 0;">No groups to suggest yet.</p>
     <?php else: ?>
         <?php foreach ($suggestedGroups as $group): ?>
             <a class="community-item" href="groups_detail.php?group_id=<?= $group['group_id'] ?>"><?= htmlspecialchars($group['group_name']) ?></a>
         <?php endforeach; ?>
-        <a href="all_groups.php" style="display: block; text-align: center; margin-top: 10px; padding: 5px 0; color: var(--accent-color); font-size: 0.9em; text-decoration: none;">View All Groups &raquo;</a>
+        <a href="all_groups.php" class="view-all-link">View All Groups &raquo;</a>
     <?php endif; ?>
 </aside>

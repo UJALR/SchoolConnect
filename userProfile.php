@@ -48,7 +48,7 @@ $userLanguages = getLanguagesForUser($userId);
 include __DIR__ . "/includes/header.php";
 ?>
 
-<link rel="stylesheet" href="assets/css/feed.css">
+<!-- <link rel="stylesheet" href="assets/css/feed.css"> 
 
 <style>
 .feed-main {
@@ -257,7 +257,7 @@ include __DIR__ . "/includes/header.php";
     margin-top: 16px;
     font-size: 0.9rem;
 }
-</style>
+</style> -->
 
 <div class="feed-wrapper">
 
@@ -276,14 +276,14 @@ include __DIR__ . "/includes/header.php";
                     <img src="<?= htmlspecialchars($avatar) ?>" class="profile-avatar-lg">
 
                     <!-- Camera triggers file input -->
-                    <label for="avatarUpload" class="profile-avatar-edit">
+                    <!-- <label for="avatarUpload" class="profile-avatar-edit">
                         <i class="fa fa-camera"></i>
-                    </label>
+                    </label> -->
 
                     <!-- Hidden file input -->
-                    <form action="updateAvatar.php" method="POST" enctype="multipart/form-data">
+                    <!-- <form action="updateAvatar.php" method="POST" enctype="multipart/form-data">
                         <input type="file" id="avatarUpload" name="avatar" accept="image/*" style="display:none" onchange="this.form.submit()">
-                    </form>
+                    </form> -->
                 </div>
 
                 <!-- Main profile text -->
@@ -309,8 +309,6 @@ include __DIR__ . "/includes/header.php";
                     <h3>About Me</h3>
                     <p><?= nl2br(htmlspecialchars($user['bio'] ?: "Tell others about yourself!")) ?></p>
                 </div>
-
-                <hr class="profile-divider">
 
                 <div class="profile-section">
                     <h3>Contact Info</h3>

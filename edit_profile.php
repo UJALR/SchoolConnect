@@ -24,7 +24,7 @@ $userLanguages = getLanguagesForUser($userId);
 include __DIR__ . "/includes/header.php";
 ?>
 
-<style>
+<!-- <style>
     .edit-card {
         background: #fff;
         padding: 22px;
@@ -88,7 +88,7 @@ include __DIR__ . "/includes/header.php";
         height: 120px;
         border-radius: 50%;
     }
-</style>
+</style> -->
 
 <div class="feed-wrapper">
     <div class="feed-main">

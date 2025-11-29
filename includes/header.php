@@ -30,7 +30,7 @@ $userId = getUserId();
                 <ul class="nav-links">
                     <?php if (isset($_SESSION['user_id'])): ?>
                         <li class="user-greeting">
-                            <a href="userProfile.php" style="text-decoration:none;color:inherit;">
+                            <a href="userProfile.php">
                                 <img src="<?= htmlspecialchars(getUserProfilePic($userId) ?: 'assets/images/default-avatar.png') ?>"
                                     class="avatar-xs">
                                 <span><?= htmlspecialchars($_SESSION['full_name'] ?? $_SESSION['username'] ?? 'User') ?></span>

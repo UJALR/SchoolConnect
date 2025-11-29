@@ -72,7 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['friend_action'])) {
 include __DIR__ . "/includes/header.php";
 ?>
 
-<link rel="stylesheet" href="assets/css/feed.css">
+<!-- <link rel="stylesheet" href="assets/css/feed.css">
 
 <style>
     /* --- Profile Card Base Styles (Reused from userProfile.php) --- */
@@ -264,7 +264,7 @@ include __DIR__ . "/includes/header.php";
     .social-icons-row a.tiktok {
         color: black;
     }
-</style>
+</style> -->
 
 <div class="feed-wrapper">
 
@@ -324,7 +324,7 @@ include __DIR__ . "/includes/header.php";
                     <p><?= nl2br(htmlspecialchars($friend['bio'] ?: "No bio provided.")) ?></p>
                 </div>
 
-                <hr class="profile-divider">
+                <!-- <hr class="profile-divider"> -->
 
                 <div class="profile-section">
                     <h3>Contact Info</h3>
@@ -378,7 +378,7 @@ include __DIR__ . "/includes/header.php";
             <h3><?= htmlspecialchars($friend['full_name']) ?>'s Posts</h3>
 
             <?php if (empty($posts)): ?>
-                <div class="no-content-message" style="padding: 20px; text-align: center; color: #666;">
+                <div class="no-content-message">
                     This user hasn't created any posts yet.
                 </div>
             <?php else: ?>
