@@ -646,17 +646,11 @@
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    @media (width < 40rem) {
-      flex-direction: column;
-    }
     @media (width >= 64rem) {
       width: calc(2/3 * 100%);
     }
     .header-logo {
       height: calc(var(--spacing) * 12);
-      @media (width < 40rem) {
-        height: 80px;
-      }
     }
     .site-nav {
       display: flex;
@@ -700,6 +694,7 @@
     }
   }
   .content-container {
+    width: 100%;
     max-width: var(--container-7xl);
     margin-inline: auto;
   }
@@ -767,23 +762,14 @@
         }
       }
       .friend-badge {
+        margin: calc(var(--spacing) * 0);
         border-radius: calc(infinity * 1px);
-        background-color: var(--color-pine-green);
-        padding-inline: calc(var(--spacing) * 1);
+        background-color: var(--color-pistachio);
+        padding: 5px;
         font-size: var(--text-xs);
         line-height: var(--tw-leading, var(--text-xs--line-height));
-        color: var(--color-seasalt);
+        color: var(--color-pine-green);
         text-decoration-line: none;
-        &:hover {
-          @media (hover: hover) {
-            background-color: var(--color-pistachio);
-          }
-        }
-        &:hover {
-          @media (hover: hover) {
-            text-decoration-line: none;
-          }
-        }
       }
     }
     .feed-main {
