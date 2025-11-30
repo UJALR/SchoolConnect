@@ -110,20 +110,20 @@ catch (PDOException $e)
             <?php foreach ($myGroups as $group): ?>
                 <div class="group-card">
                     <!-- Role Badge -->
-                    <div class="group-role">
-                        <?php echo ucfirst($group['member_role']); ?>
+                    <div class="group-meta">
+                        <div>
+                            <?php echo ucfirst($group['member_role']); ?>
+                        </div>
+                        <div>
+                            <?php echo $group['is_private'] ? 'Private' : 'Public'; ?>
+                        </div>
                     </div>
 
-                    <div class="group-title">
-                        <h3>
-                            <a href="groups_detail.php?group_id=<?php echo $group['group_id']; ?>">
-                                <?php echo htmlspecialchars($group['group_name']); ?>
-                            </a>
-                        </h3>
-                        <span>
-                            <?php echo $group['is_private'] ? 'Private' : 'Public'; ?>
-                        </span>
-                    </div>
+                    <h3 class="group-title">
+                        <a href="groups_detail.php?group_id=<?php echo $group['group_id']; ?>">
+                            <?php echo htmlspecialchars($group['group_name']); ?>
+                        </a>
+                    </h3>
 
                     <p class="group-description">
                         <?php echo htmlspecialchars($group['description'] ?: 'No description provided.'); ?>
