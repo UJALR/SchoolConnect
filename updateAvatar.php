@@ -11,5 +11,6 @@ if (!empty($_FILES['avatar']['name'])) {
     updateUserAvatar($_FILES['avatar'], $userId);
 }
 
-header("Location: userProfile.php");
+// header("Location: userProfile.php");
+header("Location: edit_profile.php");
 exit;

@@ -19,14 +19,18 @@ if (!isset($pendingCount)) {
 <aside class="sidebar-left">
 	<input type="text" class="search-box" placeholder="Search">
 	<nav class="sidebar-links">
+		<a href="posts.php" class="mb-2">Home</a>
+		<hr class="text-gray-200">
+
 		<a href="userProfile.php">My Profile</a>
 		<a href="viewMyFriends.php" class="friends-link">
-			Friends
+			My Friends
 			<?php if ($pendingCount > 0): ?>
 				<span class="friend-badge"><?= $pendingCount ?></span>
 			<?php endif; ?>
 		</a>
-		<a href="my_groups.php">Groups</a>
+		<a href="my_groups.php">My Groups</a>
+		<hr class="text-gray-200">
 		<a href="Logout.php">Logout</a>
 	</nav>
 </aside>

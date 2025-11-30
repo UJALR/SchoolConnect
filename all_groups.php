@@ -105,54 +105,55 @@ catch (PDOException $e)
             <div class="error"><?php echo htmlspecialchars($error); ?></div>
         <?php endif; ?>
 
-        <div class="groups-item">
-            <?php foreach ($groups as $group): ?>
-                <div class="group-card">
-                    <div class="group-title">
-                        <h3>
-                            <a href="groups_detail.php?group_id=<?php echo $group['group_id']; ?>">
-                                <?php echo htmlspecialchars($group['group_name']); ?>
-                            </a>
-                        </h3>
-                        <span>
-                            <?php echo $group['is_private'] ? 'Private' : 'Public'; ?>
-                        </span>
-                    </div>
+        <!-- <div class="groups-item"> -->
+        <?php foreach ($groups as $group): ?>
+            <div class="group-item">
+                <small class="meta">
+                    <?php echo $group['is_private'] ? 'Private Group' : 'Public Group'; ?>
+                </small>
+                <div class="group-title">
+                    <h3>
+                        <a href="groups_detail.php?group_id=<?php echo $group['group_id']; ?>">
+                            <?php echo htmlspecialchars($group['group_name']); ?>
+                        </a>
+                    </h3>
+                </div>
 
+                <div class="group-details">
                     <p class="group-description">
                         <?php echo htmlspecialchars($group['description'] ?: 'No description provided.'); ?>
                     </p>
-
-                    <div class="group-details">
-                        <div>
-                            <div><span class="detail-label">Created by:</span><span class="detail-item"><?php echo htmlspecialchars($group['creator_full_name']); ?></span></div>
-                            <div><span class="detail-label">Members:</span><span class="detail-item"><?php echo $group['member_count']; ?></span></div>
-                        </div>
-
-                        <form method="post">
-                            <input type="hidden" name="group_id" value="<?php echo $group['group_id']; ?>">
-                            <?php if ($group['is_member']): ?>
-                                <button type="submit" name="leave_group" class="btn-warning" onclick="return confirm('Are you sure you want to leave this group?')">
-                                    Leave Group
-                                </button>
-                            <?php else: ?>
-                                <button type="submit" name="join_group" class="btn-primary">Join Group</button>
-                            <?php endif; ?>
-                        </form>
-                    </div>
-
-                    <div class="group-create-date">Created: <?php echo date('M j, Y', strtotime($group['created_at'])); ?></div>
+                    <!-- <div>
+                        <div><span class="detail-label">Created by:</span><span class="detail-item"><?php echo htmlspecialchars($group['creator_full_name']); ?></span></div>
+                        <div><span class="detail-label">Members:</span><span class="detail-item"><?php echo $group['member_count']; ?></span></div>
+                    </div> -->
                 </div>
-            <?php endforeach; ?>
 
-            <?php if (empty($groups)): ?>
-                <div>
-                    <h3>No groups found</h3>
-                    <p>Be the first to create a group!</p>
-                    <a href="create_group.php" class="btn-primary">Create New Group</a>
+                <div class="group-actions">
+                    <form method="post">
+                        <input type="hidden" name="group_id" value="<?php echo $group['group_id']; ?>">
+                        <?php if ($group['is_member']): ?>
+                            <button type="submit" name="leave_group" class="btn-warning" onclick="return confirm('Are you sure you want to leave this group?')">
+                                Leave Group
+                            </button>
+                        <?php else: ?>
+                            <button type="submit" name="join_group" class="btn-primary">Join Group</button>
+                        <?php endif; ?>
+                    </form>
                 </div>
-            <?php endif; ?>
-        </div>
+
+                <!-- <div class="group-create-date">Created: <?php echo date('M j, Y', strtotime($group['created_at'])); ?></div> -->
+            </div>
+        <?php endforeach; ?>
+
+        <?php if (empty($groups)): ?>
+            <div>
+                <h3>No groups found</h3>
+                <p>Be the first to create a group!</p>
+                <a href="create_group.php" class="btn-primary">Create New Group</a>
+            </div>
+        <?php endif; ?>
+        <!-- </div> -->
     </div>
     <?php include 'includes/right_panel_partial.php'; ?>
 </div>

@@ -3,7 +3,8 @@ require_once 'includes/database.php';
 require_once 'includes/auth.php';
 require_once 'includes/functions.php';
 
-if (session_status() == PHP_SESSION_NONE) {
+if (session_status() == PHP_SESSION_NONE)
+{
     session_start();
 }
 
@@ -15,21 +16,26 @@ $pdo = $db->getConnection();
 $groupId = isset($_GET['group_id']) ? (int) $_GET['group_id'] : 0;
 
 // Handle Join Group action
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['join_group'])) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['join_group']))
+{
     $groupIdToModify = (int) $_POST['group_id'];
 
     $joinStmt = $pdo->prepare("INSERT IGNORE INTO GroupMembers (group_id, user_id) VALUES (?, ?)");
-    if ($joinStmt->execute([$groupIdToModify, $userId])) {
+    if ($joinStmt->execute([$groupIdToModify, $userId]))
+    {
         // Redirect to clear POST data and show updated status
         header("Location: groups_detail.php?group_id=" . $groupIdToModify);
         exit;
-    } else {
+    }
+    else
+    {
         $error = "Failed to join group. Please try again.";
     }
 }
 
 // Handle Leave Group action
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['leave_group'])) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['leave_group']))
+{
     $groupIdToModify = (int) $_POST['group_id'];
 
     // Check if user is the creator (Prevent creator from leaving)
@@ -37,30 +43,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['leave_group'])) {
     $checkCreatorStmt->execute([$groupIdToModify]);
     $groupCreator = $checkCreatorStmt->fetchColumn();
 
-    if ($groupCreator == $userId) {
+    if ($groupCreator == $userId)
+    {
         $error = "You cannot leave a group you created. You must transfer ownership or delete the group first.";
-    } else {
+    }
+    else
+    {
         $leaveStmt = $pdo->prepare("DELETE FROM GroupMembers WHERE group_id = ? AND user_id = ?");
-        if ($leaveStmt->execute([$groupIdToModify, $userId])) {
+        if ($leaveStmt->execute([$groupIdToModify, $userId]))
+        {
             // Redirect to clear POST data and show updated status
             header("Location: groups_detail.php?group_id=" . $groupIdToModify);
             exit;
-        } else {
+        }
+        else
+        {
             $error = "Failed to leave group. Please try again.";
         }
     }
 }
 
 // Handle comment submission for group posts
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_comment'])) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_comment']))
+{
     $postId = isset($_POST['post_id']) ? (int)$_POST['post_id'] : 0;
     $commentText = trim($_POST['comment_text'] ?? '');
 
-    if ($postId > 0 && $groupId > 0 && $commentText !== '') {
+    if ($postId > 0 && $groupId > 0 && $commentText !== '')
+    {
         // verify membership
         $checkMember = $pdo->prepare("SELECT 1 FROM GroupMembers WHERE group_id = ? AND user_id = ?");
         $checkMember->execute([$groupId, $userId]);
-        if ($checkMember->fetch()) {
+        if ($checkMember->fetch())
+        {
             createComment($postId, $userId, $commentText);
         }
     }
@@ -92,7 +107,8 @@ $groupStmt = $pdo->prepare("
 $groupStmt->execute([$userId, $userId, $groupId]);
 $group = $groupStmt->fetch(PDO::FETCH_ASSOC);
 
-if (!$group) {
+if (!$group)
+{
     header("Location: my_groups.php");
     exit();
 }
@@ -125,70 +141,58 @@ $posts = $postsStmt->fetchAll(PDO::FETCH_ASSOC);
 
 <?php include 'includes/header.php'; ?>
 
-<link rel="stylesheet" href="assets/css/feed.css">
+<!-- <link rel="stylesheet" href="assets/css/feed.css"> -->
 
 <div class="feed-wrapper">
     <?php include 'includes/left_panel_partial.php'; ?>
 
     <div class="feed-main">
-        <div class="content-container">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
-        <div>
-            <h1><?php echo htmlspecialchars($group['group_name']); ?></h1>
-            <p style="color: rgba(255, 255, 255, 0.8); margin: 0;">
-                <?php echo htmlspecialchars($group['description']); ?>
-            </p>
+        <!-- <div class="content-container"> -->
+        <div class="group-title card">
+            <div class="group-info">
+                <small class="meta">
+                    <?php echo $group['is_private'] ? 'Private Group' : 'Public Group'; ?>
+                </small>
+                <h1 class="group-name"><?php echo htmlspecialchars($group['group_name']); ?></h1>
+                <p class="group-description">
+                    <?php echo htmlspecialchars($group['description']); ?>
+                </p>
+            </div>
         </div>
-        <div style="text-align: right;">
-            <span style="
-                background: <?php echo $group['is_private'] ? 'var(--warning-color)' : 'var(--success-color)'; ?>;
-                color: var(--white);
-                padding: 6px 12px;
-                border-radius: 20px;
-                font-size: 0.9rem;
-                font-weight: 600;
-            ">
-                <?php echo $group['is_private'] ? 'Private Group' : 'Public Group'; ?>
-            </span>
-        </div>
-    </div>
 
-    <div style="display: grid; grid-template-columns: 1fr; gap: 30px;">
-        <!-- Left Column - Posts -->
-        <div>
-            <h2>Group Posts</h2>
-            <?php if ($group['is_member']): ?>
-                <!-- Post creation form for members -->
-                <div style="background: rgba(255, 255, 255, 0.1); padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-                    <h4>Create a Post</h4>
-                    <form method="post" action="create_group_post.php">
-                        <input type="hidden" name="group_id" value="<?php echo $groupId; ?>">
-                        <textarea name="post_text" placeholder="What's happening in the group?" style="width: 100%; height: 100px; padding: 10px; border-radius: 8px; 
-                                         background: rgba(255, 255, 255, 0.1); color: var(--white); 
-                                         border: 1px solid rgba(255, 255, 255, 0.3);"></textarea>
-                        <button type="submit" class="btn" style="margin-top: 10px;">Post to Group</button>
-                    </form>
-                </div>
-            <?php endif; ?>
+        <!-- <div class="group-post"> -->
+        <?php if ($group['is_member']): ?>
+            <!-- Post creation form for members -->
+            <div class="create-group-post">
+                <h2>Create a Post</h2>
+                <form method="post" action="create_group_post.php">
+                    <input type="hidden" name="group_id" value="<?php echo $groupId; ?>">
+                    <textarea class="w-full" name="post_text" rows="4" placeholder="What's happening in the group?"></textarea>
+                    <div class="flex justify-end">
+                        <button type="submit" class="btn-primary">Post to Group</button>
+                    </div>
+                </form>
+            </div>
+        <?php endif; ?>
 
-            <!-- Group Posts -->
-            <?php foreach ($posts as $post): ?>
-                <div id="post-<?php echo $post['post_id']; ?>" style="background: rgba(255, 255, 255, 0.1); padding: 15px; border-radius: 8px; margin-bottom: 15px;">
-                    <div style="display: flex; align-items: center; margin-bottom: 10px;">
-                        <img src="<?php echo htmlspecialchars($post['profile_picture'] ?: 'assets/images/default-avatar.png'); ?>"
-                            style="width: 40px; height: 40px; border-radius: 50%; margin-right: 10px;">
+        <h2 class="m-0">Group Posts</h2>
+
+        <!-- Group Posts -->
+        <?php foreach ($posts as $post): ?>
+            <div class="post-card">
+                <div id="post-<?php echo $post['post_id']; ?>">
+                    <div class="post-header">
+                        <img src="<?php echo htmlspecialchars($post['profile_picture'] ?: 'assets/images/default-avatar.png'); ?>" class="avatar-sm">
                         <div>
-                            <strong
-                                style="color: var(--white);"><?php echo htmlspecialchars($post['full_name']); ?></strong><br>
-                            <small
-                                style="color: rgba(255, 255, 255, 0.6);"><?php echo date('M j, Y g:i A', strtotime($post['created_at'])); ?></small>
+                            <span class="user-name"><?php echo htmlspecialchars($post['full_name']); ?></span>
+                            <small class="post-date"><?php echo date('M j, Y g:i A', strtotime($post['created_at'])); ?></small>
                         </div>
                     </div>
-                    <p style="color: rgba(255, 255, 255, 0.9); margin: 0; line-height: 1.5;">
+                    <p>
                         <?php echo nl2br(htmlspecialchars($post['post_text'])); ?>
                     </p>
                     <!-- Comments -->
-                    <div class="comment-section" style="margin-top:12px;">
+                    <div class="comment-section">
                         <?php if ($group['is_member']): ?>
                             <form action="groups_detail.php?group_id=<?php echo $groupId; ?>" method="POST" class="comment-form" id="comment-form-<?php echo $post['post_id']; ?>">
                                 <input type="hidden" name="post_id" value="<?php echo $post['post_id']; ?>">
@@ -197,38 +201,38 @@ $posts = $postsStmt->fetchAll(PDO::FETCH_ASSOC);
                             </form>
                         <?php endif; ?>
 
-                        <div class="comments-list" style="margin-top:10px;">
+                        <div class="comments-list">
                             <?php $comments = getCommentsForPost($post['post_id']);
                             foreach ($comments as $comment):
                                 $commentAvatar = $comment['profile_picture'] ?: 'assets/images/default-avatar.png';
                             ?>
-                                <div class="comment-item" style="display:flex; gap:10px; align-items:flex-start; margin-bottom:8px;">
-                                    <img src="<?= htmlspecialchars($commentAvatar) ?>" class="avatar-xs">
+                                <div class="comment-item">
+                                    <img src="<?= htmlspecialchars($commentAvatar) ?>" class="avatar-xs mr-2">
                                     <div class="comment-content">
-                                        <span class="comment-author"><a href="friendProfile.php?user_id=<?= $comment['user_id'] ?>"><?= htmlspecialchars($comment['full_name']) ?></a></span>
-                                        <div class="comment-text-content"><?= nl2br(htmlspecialchars($comment['comment_text'])) ?></div>
+                                        <a class="comment-author" href="friendProfile.php?user_id=<?= $comment['user_id'] ?>"><?= htmlspecialchars($comment['full_name']) ?></a>
+                                        <div class="comment-text"><?= nl2br(htmlspecialchars($comment['comment_text'])) ?></div>
                                     </div>
                                 </div>
                             <?php endforeach; ?>
                         </div>
                     </div>
                 </div>
-            <?php endforeach; ?>
+            </div>
+        <?php endforeach; ?>
 
-            <?php if (empty($posts)): ?>
-                <div style="text-align: center; padding: 40px; color: rgba(255, 255, 255, 0.6);">
-                    <p>No posts yet in this group.</p>
-                    <?php if ($group['is_member']): ?>
-                        <p>Be the first to post something!</p>
-                    <?php else: ?>
-                        <p>Join the group to see and create posts.</p>
-                    <?php endif; ?>
-                </div>
-            <?php endif; ?>
-        </div>
+        <?php if (empty($posts)): ?>
+            <div class="text-center">
+                <p>No posts yet in this group.</p>
+                <?php if ($group['is_member']): ?>
+                    <p>Be the first to post something!</p>
+                <?php else: ?>
+                    <p>Join the group to see and create posts.</p>
+                <?php endif; ?>
+            </div>
+        <?php endif; ?>
 
-        </div>
-    </div>
+        <!-- </div> -->
+        <!-- </div> -->
     </div>
 
     <?php include 'includes/right_panel_partial.php'; ?>

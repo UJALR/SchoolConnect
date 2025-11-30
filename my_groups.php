@@ -106,57 +106,60 @@ catch (PDOException $e)
             <div class="error"><?php echo htmlspecialchars($error); ?></div>
         <?php endif; ?>
 
-        <div class="groups-item">
-            <?php foreach ($myGroups as $group): ?>
-                <div class="group-card">
-                    <!-- Role Badge -->
-                    <div class="group-meta">
-                        <div>
-                            <?php echo ucfirst($group['member_role']); ?>
-                        </div>
-                        <div>
-                            <?php echo $group['is_private'] ? 'Private' : 'Public'; ?>
-                        </div>
-                    </div>
+        <!-- <div class="groups-item"> -->
+        <?php foreach ($myGroups as $group): ?>
+            <div class="group-item">
+                <!-- Role Badge -->
 
-                    <h3 class="group-title">
+                <div class="group-meta">
+                    <small class="meta">
+                        <?php echo $group['is_private'] ? 'Private Group' : 'Public Group'; ?>
+                    </small>
+                    <div class="role-badge">
+                        <?php echo ucfirst($group['member_role']); ?>
+                    </div>
+                </div>
+
+                <div class="group-title">
+                    <h3>
                         <a href="groups_detail.php?group_id=<?php echo $group['group_id']; ?>">
                             <?php echo htmlspecialchars($group['group_name']); ?>
                         </a>
                     </h3>
+                </div>
 
+                <div class="group-details">
                     <p class="group-description">
                         <?php echo htmlspecialchars($group['description'] ?: 'No description provided.'); ?>
                     </p>
-
-                    <div class="group-details">
-                        <div>
-                            <div><strong>Creator:</strong> <a href="friendProfile.php?user_id=<?php echo $group['creator_id']; ?>" style="color: inherit; text-decoration: none;"><?php echo htmlspecialchars($group['creator_full_name']); ?></a></div>
-                            <div><strong>Members:</strong> <?php echo $group['member_count']; ?></div>
-                            <div><strong>Joined:</strong> <?php echo date('M j, Y', strtotime($group['joined_at'])); ?></div>
-                        </div>
-
-                        <?php if ($group['member_role'] !== 'admin' || $group['creator_id'] != $userId): ?>
-                            <form method="post">
-                                <input type="hidden" name="group_id" value="<?php echo $group['group_id']; ?>">
-                                <button type="submit" name="leave_group" class="btn-warning">Leave</button>
-                            </form>
-                        <?php else: ?>
-                            <!-- @apply bg-gray-400 border-gray-400 cursor-pointer hover:bg-gray-500 hover:border-gray-500 text-seasalt px-4 py-2 rounded-md no-underline; -->
-                            <span class="inline-block border border-gray-400 p-2 rounded-md text-gray-400 mt-3">Creator</span>
-                        <?php endif; ?>
+                    <div>
+                        <div><strong>Creator:</strong> <a href="friendProfile.php?user_id=<?php echo $group['creator_id']; ?>" style="color: inherit; text-decoration: none;"><?php echo htmlspecialchars($group['creator_full_name']); ?></a></div>
+                        <div><strong>Members:</strong> <?php echo $group['member_count']; ?></div>
+                        <div><strong>Joined:</strong> <?php echo date('M j, Y', strtotime($group['joined_at'])); ?></div>
                     </div>
                 </div>
-            <?php endforeach; ?>
 
-            <?php if (empty($myGroups)): ?>
-                <div class="group-card">
-                    <p class="text-lg text-center font-semibold">You haven't joined any groups yet</p>
-                    <p class="text-center">Discover and join groups that match your interests</p>
-                    <a class="text-center" href="all_groups.php">Browse All Groups</a>
+                <div class="group-actions">
+                    <?php if ($group['member_role'] !== 'admin' || $group['creator_id'] != $userId): ?>
+                        <form method="post">
+                            <input type="hidden" name="group_id" value="<?php echo $group['group_id']; ?>">
+                            <button type="submit" name="leave_group" class="btn-warning">Leave</button>
+                        </form>
+                    <?php else: ?>
+                        <span class="inline-block border border-gray-400 p-2 rounded-md text-gray-400 cursor-default">Creator</span>
+                    <?php endif; ?>
                 </div>
-            <?php endif; ?>
-        </div>
+            </div>
+        <?php endforeach; ?>
+
+        <?php if (empty($myGroups)): ?>
+            <div class="card text-center">
+                <p class="text-lg font-semibold">You haven't joined any groups yet</p>
+                <p> Discover and join groups that match your interests</p>
+                <a href="all_groups.php">Browse All Groups</a>
+            </div>
+        <?php endif; ?>
+        <!-- </div> -->
     </div>
     <?php include 'includes/right_panel_partial.php'; ?>
 </div>

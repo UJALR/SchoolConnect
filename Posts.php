@@ -85,12 +85,14 @@ $pendingCount = getPendingFriendRequestCount($userId);
                 <div class="post-header">
                     <img src="<?= htmlspecialchars(getUserProfilePic($post['user_id'])) ?>" class="avatar-sm">
                     <div>
-                        <a href="friendProfile.php?user_id=<?= $post['user_id'] ?>">
+                        <a class="user-name" href="friendProfile.php?user_id=<?= $post['user_id'] ?>">
                             <?= htmlspecialchars(getUserName($post['user_id'])) ?>
                         </a>
                         <?php if (!empty($post['group_name'])): ?>
-                            <span class="group-tag">
-                                • Posted to <a href="groups_detail.php?group_id=<?= $post['group_id'] ?>" style="color: inherit; text-decoration: none;"><?= htmlspecialchars($post['group_name']) ?></a>
+                            <span class="group-tag">Posted to 
+                                <a href="groups_detail.php?group_id=<?= $post['group_id'] ?>">
+                                    <?= htmlspecialchars($post['group_name']) ?>
+                                </a>
                             </span>
                         <?php endif; ?>
                         <span class="post-date"><?= date("M j, Y H:i", strtotime($post['created_at'])) ?></span>
@@ -132,14 +134,13 @@ $pendingCount = getPendingFriendRequestCount($userId);
                             $commentAvatar = $comment['profile_picture'] ?: 'assets/images/default-avatar.png';
                         ?>
                             <div class="comment-item">
-                                <img src="<?= htmlspecialchars($commentAvatar) ?>" class="avatar-xs">
+
+                                <img src="<?= htmlspecialchars($commentAvatar) ?>" class="avatar-xs mr-2">
                                 <div class="comment-content">
-                                    <span class="comment-author">
-                                        <a href="friendProfile.php?user_id=<?= $comment['user_id'] ?>">
-                                            <?= htmlspecialchars($comment['full_name']) ?>
-                                        </a>
-                                    </span>
-                                    <span class="comment-text-content"><?= htmlspecialchars($comment['comment_text']) ?></span>
+                                    <a href="friendProfile.php?user_id=<?= $comment['user_id'] ?>" class="comment-author">
+                                        <?= htmlspecialchars($comment['full_name']) ?>
+                                    </a>
+                                    <p class="comment-text"><?= htmlspecialchars($comment['comment_text']) ?></p>
                                 </div>
                             </div>
                         <?php endforeach; ?>
@@ -154,33 +155,11 @@ $pendingCount = getPendingFriendRequestCount($userId);
 
 </div>
 
-
-<!-- <div id="modalBackdrop" class="modal-backdrop fixed inset-0 bg-[rgba(0,0,0,0.45)] opacity-0 hidden pointer-events-auto transition-opacity duration-[350ms] ease-in-out"></div>
-
-<div id="postModal" class="modal fixed inset-0 flex justify-center items-start top-[-1000px] opacity-0 hidden pointer-events-auto transition-all duration-[350ms] ease-in-out z-[2000]">
-    <div class="modal-content w-full max-w-[640px] bg-white rounded-[12px] px-[22px] py-[20px] shadow-mdf relative">
-        <span id="modalClose" class="absolute right-[20px] top-[10px] text-[1.5em] text-pine-green hover:text-pistachio cursor-pointer">&times;</span>
-
-        <h3>Create Post</h3>
-
-        <form action="Posts.php" method="POST" enctype="multipart/form-data">
-            <textarea id="modalPostText" name="post_text" class="modal-textarea" placeholder="Write something..."></textarea>
-
-            <label class="upload-label">
-                <i class="fa fa-image"></i> Upload Image
-                <input type="file" name="media_file" accept="image/*">
-            </label>
-
-            <button type="submit" name="create_post" class="submit-post-btn">Post</button>
-        </form>
-    </div>
-</div> -->
-
 <div id="modalBackdrop" class="modal-backdrop "></div>
 
 <div id="postModal" class="modal">
     <div class="modal-content">
-        <span id="modalClose" class="absolute right-[20px] top-[10px] text-[1.5em] text-pine-green hover:text-pistachio cursor-pointer">&times;</span>
+        <span id="modalClose">&times;</span>
 
         <h3>Create Post</h3>
 
