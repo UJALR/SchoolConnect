@@ -40,7 +40,29 @@ if (!$friend) {
 
 $avatar = $friend['profile_picture'] ?: "assets/images/default-avatar.png";
 
-$friendshipStatus = getFriendshipStatus($userId, $friendId);
+$friendshipRaw = getFriendshipStatus($userId, $friendId); // may return assoc array or false
+
+// Normalize friendship status into string values used by the UI
+$friendshipStatus = '';
+if (!$friendshipRaw) {
+    $friendshipStatus = 'not_friends';
+} else {
+    // Expected keys: ['status' => 'pending'|'accepted'..., 'user_id_sender' => ...]
+    $status = $friendshipRaw['status'] ?? '';
+    $sender = $friendshipRaw['user_id_sender'] ?? null;
+
+    if ($status === 'pending') {
+        if ($sender == $userId) {
+            $friendshipStatus = 'pending_sent';
+        } else {
+            $friendshipStatus = 'pending_received';
+        }
+    } elseif ($status === 'accepted' || $status === 'friends') {
+        $friendshipStatus = 'friends';
+    } else {
+        $friendshipStatus = $status ?: 'not_friends';
+    }
+}
 $friendInterests = getInterestsForUser($friendId);
 $friendLanguages = getLanguagesForUser($friendId);
 $posts = getPostsByUserId($friendId);
@@ -293,25 +315,25 @@ include __DIR__ . "/includes/header.php";
 
                     <?php if ($friendshipStatus === 'not_friends' || $friendshipStatus === ''): ?>
                         <button type="submit" name="friend_action" value="add" class="friend-action-btn btn-add">
-                            <i class="fa fa-user-plus"></i> Add Friend
+                            Add
                         </button>
 
                     <?php elseif ($friendshipStatus === 'pending_sent'): ?>
-                        <button type="submit" name="friend_action" value="cancel" class="friend-action-btn btn-cancel">
-                            <i class="fa fa-times"></i> Cancel Request
+                        <button type="submit" name="friend_action" value="cancel" class="friend-action-btn btn-gray">
+                            Cancel Request
                         </button>
 
                     <?php elseif ($friendshipStatus === 'pending_received'): ?>
                         <button type="submit" name="friend_action" value="accept" class="friend-action-btn btn-accept">
                             <i class="fa fa-check"></i> Accept Request
                         </button>
-                        <button type="submit" name="friend_action" value="cancel" class="friend-action-btn btn-cancel">
+                        <button type="submit" name="friend_action" value="cancel" class="friend-action-btn btn-warning">
                             <i class="fa fa-times"></i> Decline
                         </button>
 
                     <?php elseif ($friendshipStatus === 'friends'): ?>
-                        <button type="submit" name="friend_action" value="unfriend" class="friend-action-btn btn-unfriend">
-                            <i class="fa fa-user-times"></i> Unfriend
+                        <button type="submit" name="friend_action" value="unfriend" class="friend-action-btn btn-warning">
+                            Unfriend
                         </button>
                     <?php endif; ?>
                 </form>

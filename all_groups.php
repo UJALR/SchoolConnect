@@ -133,7 +133,7 @@ catch (PDOException $e)
                     <form method="post">
                         <input type="hidden" name="group_id" value="<?php echo $group['group_id']; ?>">
                         <?php if ($group['is_member']): ?>
-                            <button type="submit" name="leave_group" class="btn-warning" onclick="return confirm('Are you sure you want to leave this group?')">
+                            <button type="submit" name="leave_group" class="btn-warning">
                                 Leave Group
                             </button>
                         <?php else: ?>

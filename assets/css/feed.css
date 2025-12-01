@@ -289,6 +289,21 @@
   z-index: 2000; /* above everything */
 }
 
+/* delete modal base - mirror post modal so it centers correctly */
+#deleteModal.modal {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  top: -1000px;
+
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.35s ease;
+  z-index: 2000;
+}
+
 /* .modal.open {
     opacity: 1;
     pointer-events: auto;
@@ -299,6 +314,13 @@
   opacity: 1;
   pointer-events: auto;
   /* transform: translateY(1000px); */
+  top: 25%;
+}
+
+/* delete modal open state */
+#deleteModal.modal.open {
+  opacity: 1;
+  pointer-events: auto;
   top: 25%;
 }
 
@@ -342,6 +364,35 @@
   font-size: 20px;
   color: #6b7280;
   cursor: pointer;
+}
+
+/* Delete modal mirrors post modal styling so it centers and has a top-right close */
+#deleteModal .modal-content {
+  width: 100%;
+  max-width: 640px;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 20px 22px;
+  box-shadow: 0 12px 40px rgba(2, 6, 23, 0.18);
+  position: relative;
+  animation: popupFade 160ms ease-out;
+}
+
+#deleteModal .modal-content #deleteModalClose,
+#deleteModal .modal-content .modal-close {
+  position: absolute;
+  right: 14px;
+  top: 12px;
+  font-size: 20px;
+  color: #6b7280;
+  cursor: pointer;
+}
+
+#deleteModal form {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  gap: 12px;
 }
 
 /* Modal header */

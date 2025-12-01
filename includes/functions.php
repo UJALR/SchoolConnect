@@ -451,3 +451,41 @@ function updateInterestsAndLanguages($userId, $interests, $languages) {
 
     return true;
 }
+
+/**
+ * Permanently delete a group and all related data: group posts, post comments, group members, and the group record.
+ * Performs the deletes inside a transaction.
+ * @param int $groupId
+ * @return bool True on success, false on failure
+ */
+function deleteGroup($groupId) {
+    $db = Database::getInstance()->getConnection();
+
+    try {
+        $db->beginTransaction();
+
+        // 1) Delete comments for posts that belong to this group
+        $delComments = $db->prepare("DELETE c FROM UserComments c
+            JOIN Posts p ON c.post_id = p.post_id
+            WHERE p.group_id = ?");
+        $delComments->execute([$groupId]);
+
+        // 2) Delete posts for this group
+        $delPosts = $db->prepare("DELETE FROM Posts WHERE group_id = ?");
+        $delPosts->execute([$groupId]);
+
+        // 3) Delete group members
+        $delMembers = $db->prepare("DELETE FROM GroupMembers WHERE group_id = ?");
+        $delMembers->execute([$groupId]);
+
+        // 4) Delete the group record
+        $delGroup = $db->prepare("DELETE FROM UserGroups WHERE group_id = ?");
+        $delGroup->execute([$groupId]);
+
+        $db->commit();
+        return true;
+    } catch (PDOException $e) {
+        if ($db->inTransaction()) $db->rollBack();
+        return false;
+    }
+}
