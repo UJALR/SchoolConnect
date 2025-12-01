@@ -550,3 +550,66 @@
 .comment-text-content {
     color: #444;
 }
+
+/* Chat page specific tweaks */
+.chat-list {
+  /* slightly narrower friends list */
+  width: 220px;
+}
+
+.chat-friend.selected {
+  background: rgba(6,120,84,0.06);
+  border-radius: 8px;
+  padding: 8px;
+}
+
+/* Chat panel card (center-right area on chat page) */
+.chat-panel-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 0; /* header and content control padding */
+  border: 1px solid #e6e6e6;
+  box-shadow: 0 4px 12px rgba(2,6,23,0.06);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.chat-panel-header {
+  background: linear-gradient(90deg, #f3faf6, #f7f9fb);
+  padding: 14px 16px;
+  border-bottom: 1px solid #eef3ee;
+  font-weight: 700;
+  color: #0b6b3b;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.chat-panel-header .avatar-xs {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 1px solid #eaeaea;
+}
+
+.chat-panel-messages {
+  padding: 12px;
+  min-height: 200px;
+  height: 420px; /* fixed height */
+  max-height: 60vh;
+  overflow-y: auto;
+  background: #fafafa;
+}
+
+.chat-panel-form {
+  display: flex;
+  gap: 8px;
+  padding: 12px;
+  border-top: 1px solid #f2f2f2;
+  background: #fff;
+}
+
+.sc-bubble.me { background: #dcf8c6; }
+.sc-bubble.them { background: #ffffff; }
+.sc-message-row { margin-bottom: 8px; }

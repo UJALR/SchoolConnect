@@ -15,7 +15,7 @@ $friends = getUserFriends($userId);
     <div class="feed-main">
         <h1 class="page-title">Chat</h1>
         <div class="chat-container" style="display:flex; gap:18px;">
-            <div class="chat-list" style="width:280px;">
+            <div class="chat-list" style="width:220px;">
                 <h3>Friends</h3>
                 <div id="friendsList">
                     <?php foreach ($friends as $f): ?>
@@ -31,15 +31,17 @@ $friends = getUserFriends($userId);
             </div>
 
             <div class="chat-panel" style="flex:1;display:flex;flex-direction:column;">
-                <div id="chatHeader" style="padding:12px;border-bottom:1px solid #eee;">Select a friend to chat</div>
-                <div id="chatMessages" style="flex:1;overflow:auto;padding:12px;background:#fafafa;height:420px;max-height:60vh;"> </div>
-                <form id="chatForm" style="display:flex;gap:8px;padding:12px;border-top:1px solid #eee;">
+                <div class="chat-panel-card">
+                    <div id="chatHeader" class="chat-panel-header">Select a friend to chat</div>
+                    <div id="chatMessages" class="chat-panel-messages"> </div>
+                    <form id="chatForm" class="chat-panel-form">
                     <input type="hidden" id="chatToId" name="to_id" value="">
-                    <!-- disabled until a friend is selected -->
-                    <input id="chatInput" type="text" placeholder="Select a friend to start typing..." style="flex:1;padding:10px;border:1px solid #ddd;border-radius:6px;" disabled>
-                    <!-- type="button" prevents accidental full-form submit if JS misbehaves -->
-                    <button id="chatSend" type="button" class="btn-primary" disabled>Send</button>
-                </form>
+                        <!-- disabled until a friend is selected -->
+                        <input id="chatInput" type="text" placeholder="Select a friend to start typing..." style="flex:1;padding:10px;border:1px solid #ddd;border-radius:6px;" disabled>
+                        <!-- type="button" prevents accidental full-form submit if JS misbehaves -->
+                        <button id="chatSend" type="button" class="btn-primary" disabled>Send</button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
