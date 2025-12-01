@@ -376,7 +376,6 @@
     }
   }
   button {
-    width: 100%;
     cursor: pointer;
     border-radius: var(--radius-md);
     background-color: var(--color-pine-green);
@@ -707,9 +706,6 @@
     @media (width >= 48rem) {
       grid-template-columns: 1fr 2fr 1fr;
     }
-    @media (width >= 64rem) {
-      grid-template-columns: 2fr minmax(0,650px) 2fr;
-    }
     .sidebar-left, .sidebar-right {
       border-radius: 10px;
       border-style: var(--tw-border-style);
@@ -946,8 +942,15 @@
         box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
         .profile-header {
           display: flex;
-          width: 100%;
-          flex-direction: row;
+          flex-direction: column;
+          align-items: center;
+          gap: calc(var(--spacing) * 4);
+          @media (width >= 64rem) {
+            width: 100%;
+          }
+          @media (width >= 64rem) {
+            flex-direction: row;
+          }
           .profile-avatar-lg {
             margin-bottom: calc(var(--spacing) * 4);
             height: calc(var(--spacing) * 30);
@@ -957,6 +960,7 @@
             border-width: 2px;
             border-color: var(--color-gray-300);
             background-color: var(--color-white);
+            object-fit: cover;
           }
           .profile-info-block {
             display: flex;
@@ -964,7 +968,11 @@
             flex-direction: column;
             justify-content: center;
             padding-inline: calc(var(--spacing) * 4);
+            text-align: center;
             text-align: left;
+            @media (width >= 64rem) {
+              text-align: left;
+            }
             h2 {
               margin-bottom: calc(var(--spacing) * 0);
             }
@@ -1606,9 +1614,21 @@
       box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
       .form-group {
         display: flex;
+        @media (width >= 40rem) {
+          flex-direction: column;
+        }
+        @media (width >= 40rem) {
+          flex-wrap: nowrap;
+        }
+        flex-direction: row;
         flex-wrap: wrap;
         align-items: center;
-        gap: calc(var(--spacing) * 1);
+        gap: calc(var(--spacing) * 2);
+        div {
+          display: flex;
+          flex-grow: 1;
+          flex-direction: column;
+        }
         label {
           width: calc(var(--spacing) * 34);
           text-align: left;
@@ -1623,9 +1643,12 @@
           flex-grow: 1;
         }
         small {
-          flex-basis: 100%;
+          text-align: left;
           color: var(--color-gray-500);
           font-style: italic;
+          @media (width < 40rem) {
+            text-align: center;
+          }
         }
       }
     }

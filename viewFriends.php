@@ -39,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ============================= */
 $stmt = $db->prepare("
     SELECT user_id, full_name, username, profile_picture
-    FROM users
+    FROM Users
     WHERE user_id != :uid
 ");
 $stmt->execute([':uid' => $userId]);

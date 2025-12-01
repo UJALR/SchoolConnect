@@ -33,7 +33,7 @@ $stmt = $db->prepare("
         f.user_id_sender,
         f.user_id_receiver
     FROM userfriends f
-    JOIN users u 
+    JOIN Users u 
       ON (u.user_id = f.user_id_sender OR u.user_id = f.user_id_receiver)
     WHERE (f.user_id_sender = ? OR f.user_id_receiver = ?)
     AND u.user_id != ?
