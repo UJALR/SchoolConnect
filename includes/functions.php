@@ -489,3 +489,28 @@ function deleteGroup($groupId) {
         return false;
     }
 }
+
+// Get unread direct message count for a user
+function getUnreadMessageCount($userId) {
+    $db = Database::getInstance()->getConnection();
+    $stmt = $db->prepare("SELECT COUNT(*) FROM DirectMessages WHERE recipient_id = ? AND is_read = 0");
+    $stmt->execute([$userId]);
+    return (int)$stmt->fetchColumn();
+}
+
+// Get user's friends (accepted connections)
+function getUserFriends($userId) {
+    $db = Database::getInstance()->getConnection();
+        $sql = "
+                SELECT u.user_id, u.full_name, u.username, u.profile_picture
+                FROM userfriends uf
+                JOIN users u ON (u.user_id = uf.user_id_sender OR u.user_id = uf.user_id_receiver)
+                WHERE uf.status = 'accepted'
+                    AND (uf.user_id_sender = ? OR uf.user_id_receiver = ?)
+                    AND u.user_id != ?
+                ORDER BY u.full_name ASC
+        ";
+        $stmt = $db->prepare($sql);
+        $stmt->execute([$userId, $userId, $userId]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
