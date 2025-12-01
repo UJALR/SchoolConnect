@@ -28,7 +28,7 @@
                 const recipientId = String(data.recipient_id || data.recipientId || data.recipient);
                 const senderId = String(data.sender_id || data.senderId || data.sender);
                 if (recipientId === String(currentUser)) {
-                    const badge = document.querySelector('.chat-link .friend-badge');
+                    const badge = document.querySelector('.messages-link .friend-badge');
                     if (badge) {
                         const v = parseInt(badge.textContent || '0') || 0;
                         // if currently viewing this chat, we may have appended it already
@@ -115,10 +115,10 @@
     }
 
     function updateUnreadBadge() {
-        fetch('api/get_unread_count.php')
+        fetch('api/get_unread_count.php', { credentials: 'same-origin' })
             .then(r => r.json())
             .then(data => {
-                const badge = document.querySelector('.chat-link .friend-badge');
+                const badge = document.querySelector('.messages-link .friend-badge');
                 if (!badge) return;
                 const cnt = (data && data.unread) ? parseInt(data.unread, 10) : 0;
                 badge.textContent = cnt > 0 ? String(cnt) : '';

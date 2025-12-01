@@ -29,15 +29,6 @@ $userId = getUserId();
             <nav class="site-nav">
                 <ul class="nav-links">
                     <?php if (isset($_SESSION['user_id'])): ?>
-                        <li style="margin-right:12px;">
-                            <a href="chat.php" class="chat-link btn-gray" title="Open Chat">
-                                <i class="fa fa-comments"></i>
-                                Chat
-                                <?php $unread = getUnreadMessageCount($userId); if ($unread > 0): ?>
-                                    <span class="friend-badge"><?= $unread ?></span>
-                                <?php endif; ?>
-                            </a>
-                        </li>
                         <li class="user-greeting">
                             <a href="userProfile.php">
                                 <img src="<?= htmlspecialchars(getUserProfilePic($userId) ?: 'assets/images/default-avatar.png') ?>"

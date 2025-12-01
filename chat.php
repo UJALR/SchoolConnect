@@ -32,7 +32,7 @@ $friends = getUserFriends($userId);
 
             <div class="chat-panel" style="flex:1;display:flex;flex-direction:column;">
                 <div id="chatHeader" style="padding:12px;border-bottom:1px solid #eee;">Select a friend to chat</div>
-                <div id="chatMessages" style="flex:1;overflow:auto;padding:12px;background:#fafafa"></div>
+                <div id="chatMessages" style="flex:1;overflow:auto;padding:12px;background:#fafafa;height:420px;max-height:60vh;"> </div>
                 <form id="chatForm" style="display:flex;gap:8px;padding:12px;border-top:1px solid #eee;">
                     <input type="hidden" id="chatToId" name="to_id" value="">
                     <!-- disabled until a friend is selected -->
