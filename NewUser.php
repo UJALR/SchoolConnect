@@ -1,5 +1,5 @@
 <?php
-require_once 'includes/database.php';
+require_once './includes/database.php';
 require_once 'includes/auth.php';
 
 if (session_status() == PHP_SESSION_NONE)
@@ -145,36 +145,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
     <form method="post" class="auth-form">
         <div class="form-group">
             <label for="college_email">College Email:</label>
-            <input type="email" id="college_email" name="college_email" required
-                value="<?php echo htmlspecialchars($collegeEmail ?? ''); ?>">
+            <div>
+                <input type="email" id="college_email" name="college_email" required
+                    value="<?php echo htmlspecialchars($collegeEmail ?? ''); ?>">
+            </div>
         </div>
 
         <div class="form-group">
             <label for="username">Username:</label>
-            <input type="text" id="username" name="username" required
-                value="<?php echo htmlspecialchars($username ?? ''); ?>">
-            <small>4-50 alphanumeric characters</small>
+            <div>
+                <input type="text" id="username" name="username" required
+                    value="<?php echo htmlspecialchars($username ?? ''); ?>">
+                <small>4-50 alphanumeric characters</small>
+            </div>
         </div>
 
         <div class="form-group">
             <label for="full_name">Full Name:</label>
-            <input type="text" id="full_name" name="full_name" required
-                value="<?php echo htmlspecialchars($fullName ?? ''); ?>">
+            <div>
+                <input type="text" id="full_name" name="full_name" required
+                    value="<?php echo htmlspecialchars($fullName ?? ''); ?>">
+            </div>
         </div>
 
         <div class="form-group">
             <label for="password">Password:</label>
-            <input type="password" id="password" name="password" required>
-            <small>At least 6 characters</small>
+            <div>
+                <input type="password" id="password" name="password" required>
+                <small>At least 6 characters</small>
+            </div>
         </div>
         <div class="form-group">
             <label for="confirm_password">Confirm Password:</label>
-            <input type="password" id="confirm_password" name="confirm_password" required>
+            <div>
+                <input type="password" id="confirm_password" name="confirm_password" required>
+            </div>
         </div>
         <div class="form-actions">
             <button type="submit" class="btn">Register</button>
             <button type="reset" class="btn btn-secondary">Clear</button>
         </div>
     </form>
+
+    <a href="Login.php">Back to login</a>
 </div>
 <?php require_once 'includes/footer.php'; ?>

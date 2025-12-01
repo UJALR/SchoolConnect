@@ -1,4 +1,11 @@
 <?php require_once 'includes/header.php'; ?>
+
+<?php
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+?>
+
 <!-- Content -->
 <div class="content">
     <img src="assets/images/schooconnectlogogreen.png" alt="School Connect Logo" class="logo">

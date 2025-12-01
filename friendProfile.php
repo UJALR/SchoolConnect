@@ -72,7 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['friend_action'])) {
 include __DIR__ . "/includes/header.php";
 ?>
 
-<link rel="stylesheet" href="assets/css/feed.css">
+<!-- <link rel="stylesheet" href="assets/css/feed.css">
 
 <style>
     /* --- Profile Card Base Styles (Reused from userProfile.php) --- */
@@ -264,26 +264,11 @@ include __DIR__ . "/includes/header.php";
     .social-icons-row a.tiktok {
         color: black;
     }
-</style>
+</style> -->
 
 <div class="feed-wrapper">
 
-    <aside class="sidebar-left">
-        <input type="text" class="search-box" placeholder="Search">
-        <nav class="sidebar-links">
-            <a href="userProfile.php">My Profile</a>
-            <?php $pendingCount = getPendingFriendRequestCount($userId); ?>
-
-            <a href="viewMyFriends.php" class="friends-link">
-                Friends
-                <?php if ($pendingCount > 0): ?>
-                    <span class="friend-badge"><?= $pendingCount ?></span>
-                <?php endif; ?>
-            </a>
-            <a href="groups.php">Groups</a>
-            <a href="Logout.php">Logout</a>
-        </nav>
-    </aside>
+    <?php include 'includes/left_panel_partial.php'; ?>
 
     <div class="feed-main">
 
@@ -339,7 +324,7 @@ include __DIR__ . "/includes/header.php";
                     <p><?= nl2br(htmlspecialchars($friend['bio'] ?: "No bio provided.")) ?></p>
                 </div>
 
-                <hr class="profile-divider">
+                <!-- <hr class="profile-divider"> -->
 
                 <div class="profile-section">
                     <h3>Contact Info</h3>
@@ -393,7 +378,7 @@ include __DIR__ . "/includes/header.php";
             <h3><?= htmlspecialchars($friend['full_name']) ?>'s Posts</h3>
 
             <?php if (empty($posts)): ?>
-                <div class="no-content-message" style="padding: 20px; text-align: center; color: #666;">
+                <div class="no-content-message">
                     This user hasn't created any posts yet.
                 </div>
             <?php else: ?>
@@ -426,24 +411,7 @@ include __DIR__ . "/includes/header.php";
 
     </div>
 
-    <aside class="sidebar-right">
-        <div class="section-title">Potential Buddies</div>
-        <?php foreach (getSuggestedFriends($userId) as $fr): ?>
-            <a href="friendProfile.php?user_id=<?= $fr['user_id'] ?>" class="buddy-item"
-                style="text-decoration:none;color:inherit;">
-                <img src="<?= htmlspecialchars($fr['profile_picture'] ?: 'assets/images/default-avatar.png') ?>"
-                    class="avatar-xs">
-                <span><?= htmlspecialchars($fr['full_name']) ?></span>
-            </a>
-        <?php endforeach; ?>
-
-        <a href="viewFriends.php" class="view-all-link">View All</a>
-
-        <div class="section-title">Join a Community</div>
-        <a class="community-item" href="#">Code & Coffee</a>
-        <a class="community-item" href="#">Green Campus</a>
-        <a class="community-item" href="#">Study Sprint</a>
-    </aside>
+    <?php include 'includes/right_panel_partial.php'; ?>
 
 </div>
 

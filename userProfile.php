@@ -48,7 +48,7 @@ $userLanguages = getLanguagesForUser($userId);
 include __DIR__ . "/includes/header.php";
 ?>
 
-<link rel="stylesheet" href="assets/css/feed.css">
+<!-- <link rel="stylesheet" href="assets/css/feed.css"> 
 
 <style>
 .feed-main {
@@ -257,28 +257,12 @@ include __DIR__ . "/includes/header.php";
     margin-top: 16px;
     font-size: 0.9rem;
 }
-</style>
+</style> -->
 
 <div class="feed-wrapper">
 
     <!-- LEFT SIDEBAR -->
-    <aside class="sidebar-left">
-        <input type="text" class="search-box" placeholder="Search">
-        <nav class="sidebar-links">
-            <a href="userProfile.php" class="active-link">My Profile</a>
-           <?php $pendingCount = getPendingFriendRequestCount($userId); ?>
-
-<a href="viewMyFriends.php" class="friends-link">
-    Friends
-    <?php if ($pendingCount > 0): ?>
-        <span class="friend-badge"><?= $pendingCount ?></span>
-    <?php endif; ?>
-</a>
-
-            <a href="groups.php">Groups</a>
-            <a href="Logout.php">Logout</a>
-        </nav>
-    </aside>
+    <?php include 'includes/left_panel_partial.php'; ?>
 
     <!-- CENTER -->
     <div class="feed-main">
@@ -292,14 +276,14 @@ include __DIR__ . "/includes/header.php";
                     <img src="<?= htmlspecialchars($avatar) ?>" class="profile-avatar-lg">
 
                     <!-- Camera triggers file input -->
-                    <label for="avatarUpload" class="profile-avatar-edit">
+                    <!-- <label for="avatarUpload" class="profile-avatar-edit">
                         <i class="fa fa-camera"></i>
-                    </label>
+                    </label> -->
 
                     <!-- Hidden file input -->
-                    <form action="updateAvatar.php" method="POST" enctype="multipart/form-data">
+                    <!-- <form action="updateAvatar.php" method="POST" enctype="multipart/form-data">
                         <input type="file" id="avatarUpload" name="avatar" accept="image/*" style="display:none" onchange="this.form.submit()">
-                    </form>
+                    </form> -->
                 </div>
 
                 <!-- Main profile text -->
@@ -325,8 +309,6 @@ include __DIR__ . "/includes/header.php";
                     <h3>About Me</h3>
                     <p><?= nl2br(htmlspecialchars($user['bio'] ?: "Tell others about yourself!")) ?></p>
                 </div>
-
-                <hr class="profile-divider">
 
                 <div class="profile-section">
                     <h3>Contact Info</h3>
@@ -379,23 +361,7 @@ include __DIR__ . "/includes/header.php";
 
     </div>
 
-    <!-- RIGHT SIDEBAR -->
-    <aside class="sidebar-right">
-        <div class="section-title">Potential Buddies</div>
-        <?php foreach (getSuggestedFriends($userId) as $fr): ?>
-    <a href="friendProfile.php?user_id=<?= $fr['user_id'] ?>" class="buddy-item" style="text-decoration:none;color:inherit;">
-        <img src="<?= htmlspecialchars($fr['profile_picture'] ?: 'assets/images/default-avatar.png') ?>" class="avatar-xs">
-        <span><?= htmlspecialchars($fr['full_name']) ?></span>
-    </a>
-<?php endforeach; ?>
-
-        <a href="viewFriends.php" class="view-all-link">View All </a>
-
-        <div class="section-title">Join a Community</div>
-        <a class="community-item" href="#">Code & Coffee</a>
-        <a class="community-item" href="#">Green Campus</a>
-        <a class="community-item" href="#">Study Sprint</a>
-    </aside>
+    <?php include 'includes/right_panel_partial.php'; ?>
 
 </div>
 

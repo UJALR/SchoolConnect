@@ -24,7 +24,7 @@ $userLanguages = getLanguagesForUser($userId);
 include __DIR__ . "/includes/header.php";
 ?>
 
-<style>
+<!-- <style>
     .edit-card {
         background: #fff;
         padding: 22px;
@@ -88,100 +88,102 @@ include __DIR__ . "/includes/header.php";
         height: 120px;
         border-radius: 50%;
     }
-</style>
+</style> -->
 
 <div class="feed-wrapper">
+    <?php include 'includes/left_panel_partial.php'; ?>
     <div class="feed-main">
 
-        <div class="edit-card">
-
-            <h2>Edit Profile</h2>
+        <h1>Edit Profile</h1>
+        <div class="edit-card card">
 
             <!--  1. UPDATE AVATAR FIRST -->
-            <h3>Profile Picture</h3>
+            <div class="profile-picture">
+                <h3>Profile Picture</h3>
+                <img src="<?= htmlspecialchars($avatar) ?>" class="avatar">
 
-            <img src="<?= htmlspecialchars($avatar) ?>" class="avatar-preview avatar-circle">
-            <br><br>
-
-            <form action="updateAvatar.php" method="POST" enctype="multipart/form-data" id="avatarForm">
-                <input type="file" name="avatar" accept="image/*" id="avatarUploadInput">
-                <button type="submit" class="save-btn">Upload New Avatar</button>
-            </form>
-            <br><br>
+                <form action="updateAvatar.php" method="POST" enctype="multipart/form-data" id="avatarForm">
+                    <input type="file" name="avatar" accept="image/*" id="avatarUploadInput">
+                    <button type="submit" class="btn-primary">Upload New Avatar</button>
+                </form>
+            </div>
 
             <!--  2. INTERESTS & LANGUAGES FORM -->
-            <h3>Interests & Languages</h3>
-            <p style="font-size:0.9rem; color:#666; margin-bottom: 20px;">Use the dropdowns to select or unselect existing items. Use the checkboxes below to add new ones.</p>
-            <form action="updateInterestsAndLanguages.php" method="POST" id="IandLForm">
-                <div class="form-row">
-                    <label for="existing_interests">Current/Existing Interests (Select multiple):</label>
-                    <select id="existing_interests" name="interests[]" multiple size="5" style="height: auto; width: 100%; min-height: 120px;">
-                        <?php 
-                        $userInterestsNames = array_map(fn($n) => trim(strtolower($n)), $userInterests);
-                        foreach ($allInterests as $interest): 
-                            $selected = in_array(strtolower($interest), $userInterestsNames) ? 'selected' : '';
-                        ?>
-                            <option value="<?= htmlspecialchars($interest) ?>" <?= $selected ?>>
-                                <?= htmlspecialchars($interest) ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
+            <div class="interests">
+                <h3>Interests & Languages</h3>
+                <p>Use the dropdowns to select or unselect existing items. Use the checkboxes below to add new ones.</p>
+                <form action="updateInterestsAndLanguages.php" method="POST" id="IandLForm">
+                    <div class="form-row">
+                        <label for="existing_interests">Current/Existing Interests (Select multiple):</label>
+                        <select id="existing_interests" name="interests[]" multiple size="5">
+                            <?php
+                            $userInterestsNames = array_map(fn($n) => trim(strtolower($n)), $userInterests);
+                            foreach ($allInterests as $interest):
+                                $selected = in_array(strtolower($interest), $userInterestsNames) ? 'selected' : '';
+                            ?>
+                                <option value="<?= htmlspecialchars($interest) ?>" <?= $selected ?>>
+                                    <?= htmlspecialchars($interest) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
 
-                <div class="form-row">
-                    <input type="checkbox" id="add_new_interests_check" name="add_new_interests_check" style="margin-right: 8px;">
-                    <label for="add_new_interests_check" style="font-weight: normal;">Add New Interests</label>
-                    <input type="text" id="new_interests_input" name="new_interests" disabled placeholder="Type new interests, separated by commas (e.g., Chess, Drawing, Hiking)">
-                </div>
+                    <div class="form-row">
+                        <input type="checkbox" id="add_new_interests_check" name="add_new_interests_check">
+                        <label for="add_new_interests_check">Add New Interests</label>
+                        <input type="text" id="new_interests_input" name="new_interests" disabled placeholder="Type new interests, separated by commas (e.g., Chess, Drawing, Hiking)">
+                    </div>
 
-                <div class="form-row">
-                    <label for="existing_languages">Current/Existing Languages (Select multiple):</label>
-                    <select id="existing_languages" name="languages[]" multiple size="5" style="height: auto; width: 100%; min-height: 120px;">
-                        <?php 
-                        $userLanguagesNames = array_map(fn($n) => trim(strtolower($n)), $userLanguages);
-                        foreach ($allLanguages as $language): 
-                            $selected = in_array(strtolower($language), $userLanguagesNames) ? 'selected' : '';
-                        ?>
-                            <option value="<?= htmlspecialchars($language) ?>" <?= $selected ?>>
-                                <?= htmlspecialchars($language) ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-                
-                <div class="form-row">
-                    <input type="checkbox" id="add_new_languages_check" name="add_new_languages_check" style="margin-right: 8px;">
-                    <label for="add_new_languages_check" style="font-weight: normal;">Add New Languages</label>
-                    <input type="text" id="new_languages_input" name="new_languages" disabled placeholder="Type new languages, separated by commas (e.g., German, Mandarin)">
-                </div>
+                    <div class="form-row">
+                        <label for="existing_languages">Current/Existing Languages (Select multiple):</label>
+                        <select id="existing_languages" name="languages[]" multiple size="5">
+                            <?php
+                            $userLanguagesNames = array_map(fn($n) => trim(strtolower($n)), $userLanguages);
+                            foreach ($allLanguages as $language):
+                                $selected = in_array(strtolower($language), $userLanguagesNames) ? 'selected' : '';
+                            ?>
+                                <option value="<?= htmlspecialchars($language) ?>" <?= $selected ?>>
+                                    <?= htmlspecialchars($language) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
 
-                <button class="save-btn" type="submit" style="background:#3b82f6;">Save Interests & Languages</button>
-            </form>
-            <hr class="profile-divider" style="margin-top: 30px;">
-
+                    <div class="form-row">
+                        <input type="checkbox" id="add_new_languages_check" name="add_new_languages_check">
+                        <label for="add_new_languages_check">Add New Languages</label>
+                        <input type="text" id="new_languages_input" name="new_languages" disabled placeholder="Type new languages, separated by commas (e.g., German, Mandarin)">
+                    </div>
+                    <div class="flex justify-end">
+                        <button class="save-btn" type="submit">Save Interests & Languages</button>
+                    </div>
+                </form>
+                <!-- <hr class="profile-divider"> -->
+            </div>
             <!--  3. PROFILE DETAILS FORM -->
-            <form action="updateProfile.php" method="POST">
-                <div class="form-row">
-                    <label>Full Name</label>
-                    <input type="text" name="full_name" value="<?= htmlspecialchars($user['full_name']) ?>" required>
-                </div>
+            <div class="profile-details">
+                <form action="updateProfile.php" method="POST">
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" name="full_name" value="<?= htmlspecialchars($user['full_name']) ?>" required>
+                    </div>
 
-                <div class="form-row">
-                    <label>Username</label>
-                    <input type="text" name="username" value="<?= htmlspecialchars($user['username']) ?>" required>
-                </div>
+                    <div class="form-group">
+                        <label>Username</label>
+                        <input type="text" name="username" value="<?= htmlspecialchars($user['username']) ?>" required>
+                    </div>
 
-                <div class="form-row">
-                    <label>Email (not editable)</label>
-                    <input type="text" value="<?= htmlspecialchars($user['college_email']) ?>" disabled>
-                </div>
+                    <div class="form-group">
+                        <label>Email<br>(not editable)</label>
+                        <input type="text" value="<?= htmlspecialchars($user['college_email']) ?>" disabled>
+                    </div>
 
-                <div class="form-row">
-                    <label>Bio</label>
-                    <textarea name="bio" rows="4"><?= htmlspecialchars($user['bio']) ?></textarea>
-                </div>
+                    <div class="form-group">
+                        <label>Bio</label>
+                        <textarea name="bio" rows="4"><?= htmlspecialchars($user['bio']) ?></textarea>
+                    </div>
 
-                <!-- UI only
+                    <!-- UI only
                 <div class="form-row">
                     <label>Interests</label>
                     <input type="text" placeholder="coding, music, sports">
@@ -199,12 +201,14 @@ include __DIR__ . "/includes/header.php";
                     <input type="text" placeholder="TikTok URL">
                 </div> -->
 
-                <!--  4. SAVE CHANGES (LAST BUTTON) -->
-                <button class="save-btn" type="submit">Save Changes</button>
-
-            </form>
+                    <!--  4. SAVE CHANGES (LAST BUTTON) -->
+                    <div class="flex justify-end">
+                        <button class="save-btn" type="submit">Save Changes</button>
+                    </div>
+                </form>
+            </div>
             <script>
-                document.getElementById('avatarUploadInput').addEventListener('change', function () {
+                document.getElementById('avatarUploadInput').addEventListener('change', function() {
                     document.getElementById('avatarForm').submit();
                 });
 
@@ -235,6 +239,7 @@ include __DIR__ . "/includes/header.php";
 
         </div>
     </div>
+    <?php include 'includes/right_panel_partial.php'; ?>
 </div>
 
 <?php include __DIR__ . "/includes/footer.php"; ?>

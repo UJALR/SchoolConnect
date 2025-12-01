@@ -33,7 +33,7 @@ $stmt = $db->prepare("
         f.user_id_sender,
         f.user_id_receiver
     FROM userfriends f
-    JOIN users u 
+    JOIN Users u 
       ON (u.user_id = f.user_id_sender OR u.user_id = f.user_id_receiver)
     WHERE (f.user_id_sender = ? OR f.user_id_receiver = ?)
     AND u.user_id != ?
@@ -50,95 +50,29 @@ $friends = $stmt->fetchAll(PDO::FETCH_ASSOC);
 include 'includes/header.php';
 ?>
 
-<link rel="stylesheet" href="assets/css/feed.css">
-
-<style>
-    .feed-wrapper {
-        display: flex;
-        background: #0b5f43;
-        min-height: 100vh;
-    }
-
-    .feed-main {
-        flex: 1;
-        padding: 40px;
-    }
-
-    .page-title {
-        color: white;
-        font-size: 36px;
-        margin-bottom: 30px;
-    }
-
-    .friend-card {
-        background: #0e6a4b;
-        padding: 18px;
-        margin-bottom: 12px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .friend-info {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-    }
-
-    .avatar-xs {
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
-    }
-
-    .view-btn {
-        background: #f59e0b;
-        color: #fff;
-        padding: 10px 22px;
-        border-radius: 10px;
-        border: none;
-        cursor: pointer;
-        text-decoration: none;
-        display: inline-block;
-    }
-
-    .buddy-actions {
-        display: flex;
-        gap: 10px;
-        align-items: center;
-    }
-</style>
+<!-- <link rel="stylesheet" href="assets/css/feed.css"> -->
 
 <div class="feed-wrapper">
 
     <!-- LEFT SIDEBAR -->
-    <aside class="sidebar-left">
-        <input type="text" class="search-box" placeholder="Search">
-        <nav class="sidebar-links">
-            <a href="userProfile.php">My Profile</a>
-            <a href="viewMyFriends.php" class="active-link">Friends</a>
-            <a href="groups.php">Groups</a>
-            <a href="Logout.php">Logout</a>
-        </nav>
-    </aside>
+    <?php include 'includes/left_panel_partial.php'; ?>
 
     <!-- MAIN CONTENT -->
     <div class="feed-main">
         <h1 class="page-title">My Friends</h1>
 
         <?php if (empty($friends)): ?>
-            <p style="color:white;">You don't have any friends or requests yet.</p>
+            <p>You don't have any friends or requests yet.</p>
         <?php else: ?>
             <?php foreach ($friends as $friend): ?>
-                <div class="buddyitem" style="display: flex; gap: 40px;padding: 8px 0; align-items: center;">
+                <div class="buddy-item">
 
-                    <a href="friendProfile.php?user_id=<?= $friend['user_id'] ?>" class="buddy-info"
-                        style="display: flex; gap: 12px; align-items: center;">
+                    <a href="friendProfile.php?user_id=<?= $friend['user_id'] ?>" class="buddy-info">
                         <img src="<?= htmlspecialchars($friend['profile_picture'] ?: 'assets/images/default-avatar.png') ?>"
                             class="avatar-xs">
                         <div>
-                            <strong style="color: white;"><?= htmlspecialchars($friend['full_name']) ?></strong><br>
-                            <small style="color: #ccc;">@<?= htmlspecialchars($friend['username']) ?></small>
+                            <span class="buddy-name"><?= htmlspecialchars($friend['full_name']) ?></span>
+                            <span class="buddy-id">@<?= htmlspecialchars($friend['username']) ?></span>
                         </div>
                     </a>
 
@@ -146,22 +80,16 @@ include 'includes/header.php';
 
                         <?php if ($friend['status'] === 'pending' && $friend['user_id_sender'] != $userId): ?>
                             <!-- Incoming request -->
-                            <form method="POST" style="margin: 0;">
+                            <form method="POST">
                                 <input type="hidden" name="sender_id" value="<?= $friend['user_id_sender'] ?>">
-                                <button type="submit" name="accept_request" class="add-btn"
-                                    style="background:#22c55e; padding: 10px 22px; border-radius: 10px; border: none; color: white; cursor: pointer;">
-                                    Accept
-                                </button>
+                                <button type="submit" name="accept_request" class="btn-primary">Accept</button>
                             </form>
 
                         <?php elseif ($friend['status'] === 'accepted'): ?>
                             <!-- Already friends -->
-                            <form method="POST" style="margin: 0;">
+                            <form method="POST">
                                 <input type="hidden" name="other_id" value="<?= $friend['user_id'] ?>">
-                                <button type="submit" name="unfriend" class="add-btn gray-btn"
-                                    style="background:#6b7280; padding: 10px 22px; border-radius: 10px; border: none; color: white; cursor: pointer;">
-                                    Unfriend
-                                </button>
+                                <button type="submit" name="unfriend" class="btn-warning">Unfriend</button>
                             </form>
                         <?php endif; ?>
                     </div>
@@ -171,24 +99,7 @@ include 'includes/header.php';
 
     </div>
 
-    <!-- RIGHT SIDEBAR -->
-    <aside class="sidebar-right">
-        <div class="section-title">Potential Buddies</div>
-        <?php foreach (getSuggestedFriends($userId) as $fr): ?>
-            <a href="friendProfile.php?user_id=<?= $fr['user_id'] ?>" class="buddy-item"
-                style="text-decoration:none;color:inherit;">
-                <img src="<?= htmlspecialchars($fr['profile_picture'] ?: 'assets/images/default-avatar.png') ?>"
-                    class="avatar-xs">
-                <span><?= htmlspecialchars($fr['full_name']) ?></span>
-            </a>
-        <?php endforeach; ?>
-        <a href="viewFriends.php" class="view-all-link">View All </a>
-
-        <div class="section-title">Join a Community</div>
-        <a class="community-item" href="#">Code & Coffee</a>
-        <a class="community-item" href="#">Green Campus</a>
-        <a class="community-item" href="#">Study Sprint</a>
-    </aside>
+    <?php include 'includes/right_panel_partial.php'; ?>
 </div>
 
 <?php include 'includes/footer.php'; ?>
