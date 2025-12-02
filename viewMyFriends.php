@@ -15,14 +15,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         acceptFriendRequest($_POST['sender_id'], $userId);
     }
 
-    if (isset($_POST['cancel_request'])) {
-        // user cancels an outgoing friend request
-        $receiverId = isset($_POST['receiver_id']) ? (int)$_POST['receiver_id'] : 0;
-        if ($receiverId) {
-            cancelFriendRequest($userId, $receiverId);
-        }
-    }
-
     if (isset($_POST['unfriend'])) {
         unfriendUser($userId, $_POST['other_id']);
     }
@@ -91,12 +83,6 @@ include 'includes/header.php';
                             <form method="POST">
                                 <input type="hidden" name="sender_id" value="<?= $friend['user_id_sender'] ?>">
                                 <button type="submit" name="accept_request" class="btn-primary">Accept</button>
-                            </form>
-                        <?php elseif ($friend['status'] === 'pending' && $friend['user_id_sender'] == $userId): ?>
-                            <!-- Outgoing request: allow cancel -->
-                            <form method="POST">
-                                <input type="hidden" name="receiver_id" value="<?= $friend['user_id'] ?>">
-                                <button type="submit" name="cancel_request" class="btn-gray">Cancel Request</button>
                             </form>
 
                         <?php elseif ($friend['status'] === 'accepted'): ?>

@@ -289,21 +289,6 @@
   z-index: 2000; /* above everything */
 }
 
-/* delete modal base - mirror post modal so it centers correctly */
-#deleteModal.modal {
-  position: fixed;
-  inset: 0;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  top: -1000px;
-
-  opacity: 0;
-  pointer-events: none;
-  transition: all 0.35s ease;
-  z-index: 2000;
-}
-
 /* .modal.open {
     opacity: 1;
     pointer-events: auto;
@@ -314,13 +299,6 @@
   opacity: 1;
   pointer-events: auto;
   /* transform: translateY(1000px); */
-  top: 25%;
-}
-
-/* delete modal open state */
-#deleteModal.modal.open {
-  opacity: 1;
-  pointer-events: auto;
   top: 25%;
 }
 
@@ -364,35 +342,6 @@
   font-size: 20px;
   color: #6b7280;
   cursor: pointer;
-}
-
-/* Delete modal mirrors post modal styling so it centers and has a top-right close */
-#deleteModal .modal-content {
-  width: 100%;
-  max-width: 640px;
-  background: #ffffff;
-  border-radius: 12px;
-  padding: 20px 22px;
-  box-shadow: 0 12px 40px rgba(2, 6, 23, 0.18);
-  position: relative;
-  animation: popupFade 160ms ease-out;
-}
-
-#deleteModal .modal-content #deleteModalClose,
-#deleteModal .modal-content .modal-close {
-  position: absolute;
-  right: 14px;
-  top: 12px;
-  font-size: 20px;
-  color: #6b7280;
-  cursor: pointer;
-}
-
-#deleteModal form {
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-end;
-  gap: 12px;
 }
 
 /* Modal header */
@@ -550,66 +499,3 @@
 .comment-text-content {
     color: #444;
 }
-
-/* Chat page specific tweaks */
-.chat-list {
-  /* slightly narrower friends list */
-  width: 220px;
-}
-
-.chat-friend.selected {
-  background: rgba(6,120,84,0.06);
-  border-radius: 8px;
-  padding: 8px;
-}
-
-/* Chat panel card (center-right area on chat page) */
-.chat-panel-card {
-  background: #ffffff;
-  border-radius: 12px;
-  padding: 0; /* header and content control padding */
-  border: 1px solid #e6e6e6;
-  box-shadow: 0 4px 12px rgba(2,6,23,0.06);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.chat-panel-header {
-  background: linear-gradient(90deg, #f3faf6, #f7f9fb);
-  padding: 14px 16px;
-  border-bottom: 1px solid #eef3ee;
-  font-weight: 700;
-  color: #0b6b3b;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.chat-panel-header .avatar-xs {
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  border: 1px solid #eaeaea;
-}
-
-.chat-panel-messages {
-  padding: 12px;
-  min-height: 200px;
-  height: 420px; /* fixed height */
-  max-height: 60vh;
-  overflow-y: auto;
-  background: #fafafa;
-}
-
-.chat-panel-form {
-  display: flex;
-  gap: 8px;
-  padding: 12px;
-  border-top: 1px solid #f2f2f2;
-  background: #fff;
-}
-
-.sc-bubble.me { background: #dcf8c6; }
-.sc-bubble.them { background: #ffffff; }
-.sc-message-row { margin-bottom: 8px; }
