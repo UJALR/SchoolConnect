@@ -190,6 +190,8 @@ $posts = $postsStmt->fetchAll(PDO::FETCH_ASSOC);
                         <input type="hidden" name="group_id" value="<?php echo $groupId; ?>">
                         <?php if ($group['is_member']): ?>
                             <?php if ($group['creator_id'] == $userId): ?>
+                                <!-- Creator: show Edit and Delete Group buttons -->
+                                <a href="edit_group.php?group_id=<?php echo $groupId; ?>" class="btn btn-primary" style="margin-right:8px;">Edit Group</a>
                                 <!-- Creator: show Delete Group button which opens a modal -->
                                 <button type="button" id="openDeleteModal" class="btn btn-warning">Delete Group</button>
                             <?php else: ?>
