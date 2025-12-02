@@ -63,6 +63,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['leave_group']))
     }
 }
 
+// Handle Delete Group action (creator only)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_group']))
+{
+    $groupIdToDelete = (int) $_POST['group_id'];
+
+    // Verify current user is the creator
+    $checkCreatorStmt = $pdo->prepare("SELECT creator_id FROM UserGroups WHERE group_id = ?");
+    $checkCreatorStmt->execute([$groupIdToDelete]);
+    $groupCreator = $checkCreatorStmt->fetchColumn();
+
+    if ($groupCreator == $userId) {
+        // Call function to delete group and related data
+        if (function_exists('deleteGroup')) {
+            $ok = deleteGroup($groupIdToDelete);
+            if ($ok) {
+                header("Location: my_groups.php");
+                exit;
+            } else {
+                $error = "Failed to delete group. Please try again.";
+            }
+        } else {
+            $error = "Delete function not available.";
+        }
+    } else {
+        $error = "Only the group creator can delete this group.";
+    }
+}
+
 // Handle comment submission for group posts
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_comment']))
 {
@@ -141,7 +169,7 @@ $posts = $postsStmt->fetchAll(PDO::FETCH_ASSOC);
 
 <?php include 'includes/header.php'; ?>
 
-<!-- <link rel="stylesheet" href="assets/css/feed.css"> -->
+<link rel="stylesheet" href="assets/css/feed.css">
 
 <div class="feed-wrapper">
     <?php include 'includes/left_panel_partial.php'; ?>
@@ -157,6 +185,21 @@ $posts = $postsStmt->fetchAll(PDO::FETCH_ASSOC);
                 <p class="group-description">
                     <?php echo htmlspecialchars($group['description']); ?>
                 </p>
+                <div class="group-actions" style="margin-top:12px;">
+                    <form method="post" style="display:inline-block;">
+                        <input type="hidden" name="group_id" value="<?php echo $groupId; ?>">
+                        <?php if ($group['is_member']): ?>
+                            <?php if ($group['creator_id'] == $userId): ?>
+                                <!-- Creator: show Delete Group button which opens a modal -->
+                                <button type="button" id="openDeleteModal" class="btn btn-warning">Delete Group</button>
+                            <?php else: ?>
+                                <button type="submit" name="leave_group" class="btn btn-warning">Leave Group</button>
+                            <?php endif; ?>
+                        <?php else: ?>
+                            <button type="submit" name="join_group" class="btn btn-primary">Join Group</button>
+                        <?php endif; ?>
+                    </form>
+                </div>
             </div>
         </div>
 
@@ -240,3 +283,21 @@ $posts = $postsStmt->fetchAll(PDO::FETCH_ASSOC);
 </div>
 
 <?php include 'includes/footer.php'; ?>
+
+<!-- Delete Group Modal -->
+<div id="deleteModal" class="modal" style="display:none;">
+    <div class="modal-content">
+        <span id="deleteModalClose">&times;</span>
+        <h3>Delete Group</h3>
+        <p>Are you sure you want to permanently delete this group? This will remove all posts, comments, and member relations.</p>
+        <form method="post">
+            <input type="hidden" name="group_id" value="<?php echo $groupId; ?>">
+            <button type="submit" name="delete_group" class="btn btn-danger">Yes, delete group</button>
+            <button type="button" id="deleteCancel" class="btn btn-secondary">Cancel</button>
+        </form>
+    </div>
+</div>
+
+<div id="deleteBackdrop" class="modal-backdrop" style="display:none;"></div>
+
+<script src="assets/js/deleteGroupModal.js"></script>
